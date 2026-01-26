@@ -1,0 +1,203 @@
+<div class="container py-4">
+
+    <!-- Header / toolbar -->
+    <div class="card border-0 mb-3">
+        <div class="card-body d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+            <div>
+                <h5 class="mb-1 fw-bold">Record Attendance</h5>
+                <div class="text-muted small">
+                    Students: <span class="fw-semibold">{{ students.length ? students.length: 0 }}</span>
+                    <span class="mx-2">•</span>
+                    Week: <span class="fw-semibold">{{ weekDays.length ? weekDays.length: 0 }}</span> days
+                </div>
+            </div>
+
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                <!-- Example: progress of days unlocked -->
+                <span class="badge text-bg-secondary px-3 py-2">
+                    Group : SV23
+                </span>
+
+                <!-- Optional buttons (hook to your functions if you have them) -->
+                <button class="btn btn-outline-success btn-sm">
+                    <i class="bi bi-arrow-clockwise me-1"></i> Refresh
+                </button>
+                <button class="btn btn-success btn-sm">
+                    <i class="bi bi-save me-1"></i> Save
+                </button>
+            </div>
+        </div>
+
+        <!-- Progress bar -->
+        <div class="progress rounded-0" style="height: 6px;">
+            <div class="progress-bar" role="progressbar"
+                [style.width.%]="(presentDays / (weekDays.length ? weekDays.length : 1)) * 100" aria-valuemin="0"
+                [attr.aria-valuenow]="presentDays" [attr.aria-valuemax]="weekDays.length ? weekDays.length : 0">
+            </div>
+        </div>
+    </div>
+
+    <!-- ========= Stats Cards ========= -->
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-md-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body border rounded-3 d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="text-muted small">Class</div>
+                        <!-- <select class="form-select form-select-lg fw-semibold mt-1" [(ngModel)]="selectedClass"
+                            (change)="onClassChange()">
+                            @for(c of classes(); track $index){
+                            <option [value]="c.class_id">{{c.class_name}}</option>
+                            }
+                        </select> -->
+                    </div>
+                    <div class="rounded-4 p-3 bg-success-subtle text-success">
+                        <i class="bi bi-bank fs-2"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body border rounded-3 d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="text-muted small">Total Students</div>
+                        <div class="fw-bold display-6 mb-0">1</div>
+                        <div class="text-muted small">Active in this class</div>
+                    </div>
+                    <div class="rounded-4 p-3 bg-primary-subtle text-primary">
+                        <i class="bi bi-people-fill fs-2"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body border rounded-3 d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="text-muted small">Total Girls</div>
+                        <div class="fw-bold display-6 mb-0">1</div>
+                        <div class="text-muted small">Female students</div>
+                    </div>
+                    <div class="rounded-4 p-3 bg-danger-subtle text-danger">
+                        <i class="bi bi-gender-female fs-2"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body border rounded-3 d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="text-muted small">Total Boys</div>
+                        <div class="fw-bold display-6 mb-0">1</div>
+                        <div class="text-muted small">Male students</div>
+                    </div>
+                    <div class="rounded-4 p-3 bg-warning-subtle text-warning">
+                        <i class="bi bi-gender-male fs-2"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="d-flex flex-wrap gap-2 mb-2 small">
+        <span class="badge text-bg-success">P = Present</span>
+        <span class="badge text-bg-danger">A = Absent</span>
+        <span class="badge text-bg-warning text-dark">AP = Permission</span>
+    </div>
+
+    @defer(on timer(100)){
+
+    <!-- Table wrapper -->
+    <div class="card border rounded-3 shadow-sm">
+        <div
+            class="card-header bg-white border-0 rounded-3 d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2">
+            <div class="fw-semibold">
+                <i class="bi bi-table me-2 text-success"></i>Attendance List
+            </div>
+            <div class="text-muted small">
+                Showing <span class="fw-semibold">0 – 0</span>
+                of <span class="fw-semibold">{{ students.length }}</span>
+            </div>
+        </div>
+
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered align-middle mb-0">
+                    <thead class="table-success" style="top: 0; z-index: 1;">
+                        <tr>
+                            <th class="fw-semibold">No</th>
+                            <th class="fw-semibold">English Name</th>
+                            <th class="fw-semibold">Khmer Name</th>
+                            <th class="fw-semibold">Gender</th>
+
+                            @for(day of weekDays; track $index) {
+                            <th class="fw-semibold text-center">{{ day }}</th>
+                            }
+                        </tr>
+                    </thead>
+
+                    <tbody class="table-group-divider">
+                        @for(s of students; track $index){
+                        <tr>
+                            <td class="fw-semibold">
+                                <span class="badge text-bg-light border">{{ $index + 1 }}</span>
+                            </td>
+
+                            <td>
+                                <div class="fw-semibold">{{ s.studentname_en }}</div>
+                                <div class="text-muted" style="font-size: 10px;">ID: {{ s.student_id ?? "-" }}</div>
+                            </td>
+
+                            <td style="font-family: var(--kh-title);">{{ s.studentname_kh }}</td>
+
+                            <td>
+                                <span class="">
+                                    {{ s.gender }}
+                                </span>
+                            </td>
+
+                            @for(day of weekDays; track $index) {
+                            <td class="text-center" style="min-width: 110px;">
+                                @if($index + 1>= presentDays){
+                                <label class="ios-checkbox green">
+                                    <input type="checkbox" [disabled]="$index + 1 === presentDays ? false : true" />
+                                    <div class="checkbox-wrapper" [ngClass]="$index + 1 === presentDays ? '':'opacity-25'">
+                                        <div class="checkbox-bg"></div>
+                                        <svg fill="none" viewBox="0 0 24 24" class="checkbox-icon">
+                                            <path stroke-linejoin="round" stroke-linecap="round" stroke-width="3"
+                                                stroke="currentColor" d="M4 12L10 18L20 6" class="check-path"></path>
+                                        </svg>
+                                    </div>
+                                </label>
+
+                                <!-- <select class="form-select form-select-sm"
+                                    [disabled]="$index + 1 === presentDays ? false : true">
+                                    <option value="P">P</option>
+                                    <option value="A">A</option>
+                                    <option value="AP">AP</option>
+                                </select> -->
+                                } @else {
+                                <span class="badge" [class.text-bg-success]="s.gender === 'M' || s.gender === 'Male'"
+                                    [class.text-bg-danger]="s.gender === 'F' || s.gender === 'Female'"
+                                    [class.text-bg-secondary]="!(s.gender === 'M' || s.gender === 'Male' || s.gender === 'F' || s.gender === 'Female')">
+                                    {{ s.gender }}
+                                </span>
+                                }
+                            </td>
+                            }
+                        </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    }
+</div>

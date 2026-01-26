@@ -1,0 +1,397 @@
+<div class="container py-4">
+
+    <!-- ========= Header ========= -->
+    <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3 mb-4">
+        <div>
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge rounded-pill text-bg-success">
+                    <i class="bi bi-mortarboard-fill me-1"></i> Student
+                </span>
+                <h4 class="mb-0 fw-bold">Student Information</h4>
+            </div>
+            <div class="text-muted small mt-1">
+                Manage student information in class <span class="fw-semibold">SV23</span>
+            </div>
+        </div>
+
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+            <!-- Import -->
+            <div class="dropdown">
+                <button (click)="fileInput.click()" class="btn btn-danger btn-sm shadow-sm pointer" type="button">
+                    <i class="bi bi-file-earmark-arrow-up me-2"></i>Import excel or csv
+                </button>
+                <input #fileInput type="file" class="d-none" accept=".xlsx,.xls,.csv" (change)="import($event)" />
+
+                <!-- <button #importBtn class="btn btn-danger btn-sm dropdown-toggle shadow-sm pointer" type="button"
+                    data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                    <i class="bi bi-file-earmark-arrow-up me-2"></i>Import excel or csv
+                    <input type="file" class="d-none" accept=".xlsx,.xls,.csv" (change)="import($event)" />
+                </button> -->
+
+                <!-- <ul class="dropdown-menu">
+                    Excel
+                    <li>
+                        <label class="dropdown-item d-flex align-items-center gap-2" style="cursor:pointer;">
+                            <i class="bi bi-filetype-xlsx"></i>
+                            <span>As Excel</span>
+                            <input type="file" class="d-none" accept=".xlsx,.xls" (change)="importAsExcel($event)" />
+                        </label>
+                    </li>
+
+                    CSV
+                    <li>
+                        <label class="dropdown-item d-flex align-items-center gap-2" style="cursor:pointer;">
+                            <i class="bi bi-filetype-csv"></i>
+                            <span>As CSV</span>
+                            <input type="file" class="d-none" accept=".csv" (change)="importAsCsv($event)" />
+                        </label>
+                    </li>
+                </ul> -->
+            </div>
+
+
+            <button class="btn btn-outline-success btn-sm shadow-sm" (click)="refresh()">
+                <i class="bi bi-arrow-clockwise me-1"></i> Refresh
+            </button>
+
+            <button class="btn btn-success btn-sm shadow-sm" (click)="export()">
+                <i class="bi bi-download me-1"></i> Export
+            </button>
+
+            <button class="btn btn-outline-dark btn-sm shadow-sm" (click)="openCreateModal()">
+                <i class="bi bi-person-plus me-1"></i> Add Student
+            </button>
+        </div>
+    </div>
+
+    <!-- ========= Stats Cards ========= -->
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-md-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body border rounded-3 d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="text-muted small">Class</div>
+                        <select class="form-select form-select-lg fw-semibold mt-1" [(ngModel)]="selectedClass"
+                            (change)="onClassChange()">
+                            @for(c of classes(); track $index){
+                            <option [value]="c.class_id">{{c.class_name}}</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="rounded-4 p-3 bg-success-subtle text-success">
+                        <i class="bi bi-bank fs-2"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body border rounded-3 d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="text-muted small">Total Students</div>
+                        <div class="fw-bold display-6 mb-0">{{ totalStudents }}</div>
+                        <div class="text-muted small">Active in this class</div>
+                    </div>
+                    <div class="rounded-4 p-3 bg-primary-subtle text-primary">
+                        <i class="bi bi-people-fill fs-2"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body border rounded-3 d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="text-muted small">Total Girls</div>
+                        <div class="fw-bold display-6 mb-0">{{ totalGirls }}</div>
+                        <div class="text-muted small">Female students</div>
+                    </div>
+                    <div class="rounded-4 p-3 bg-danger-subtle text-danger">
+                        <i class="bi bi-gender-female fs-2"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body border rounded-3 d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="text-muted small">Total Boys</div>
+                        <div class="fw-bold display-6 mb-0">{{ totalBoys }}</div>
+                        <div class="text-muted small">Male students</div>
+                    </div>
+                    <div class="rounded-4 p-3 bg-warning-subtle text-warning">
+                        <i class="bi bi-gender-male fs-2"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========= Search / Filter Bar ========= -->
+    <div class="card border rounded-3 shadow-sm mb-4">
+        <div class="card-body">
+            <div class="row g-3 align-items-end">
+                <div class="col-12 col-lg-6">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                        <input type="text" class="form-control" placeholder="Search by student name English or Khmer"
+                            [(ngModel)]="searchText" (input)="loadStudentsByClass()" />
+                        <!-- <button class="btn btn-outline-secondary" type="button" (click)="clearSearch()">Clear</button> -->
+                    </div>
+                </div>
+
+                <div class="col-6 col-lg-3">
+                    <label class="form-label small text-muted mb-1">Gender</label>
+                    <select class="form-select" [(ngModel)]="genderFilter" (change)="loadStudentsByClass()">
+                        <option value="">All</option>
+                        <option value="M">Male</option>
+                        <option value="F">Female</option>
+                    </select>
+                </div>
+
+                <div class="col-6 col-lg-3">
+                    <label class="form-label small text-muted mb-1">Sort</label>
+                    <select class="form-select" [(ngModel)]="sortOrder" (change)="loadStudentsByClass()">
+                        <option value="">Default</option>
+                        <option value="ASC">Accending</option>
+                        <option value="DESC">Desc</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========= Table ========= -->
+    <div class="card border rounded-3 shadow-sm">
+        <div
+            class="card-header bg-white border-0 rounded-3 d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2">
+            <div class="fw-semibold">
+                <i class="bi bi-table me-2 text-success"></i>Student List
+            </div>
+            <div class="text-muted small">
+                Showing <span class="fw-semibold">{{ pageStart }}–{{ pageEnd }}</span>
+                of <span class="fw-semibold">{{ students.length }}</span>
+            </div>
+        </div>
+
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered align-middle mb-0">
+                    <thead class="table-success position-sticky" style="top:0; z-index:1;">
+                        <tr>
+                            <th class="ps-3" style="width: 60px;">No</th>
+                            <th>Student</th>
+                            <th>Khmer Name</th>
+                            <th>Gender</th>
+                            <th class="text-end pe-3">Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @if(students.length > 0) {
+                        <tr *ngFor="let s of students; let i = index">
+                            <td class="ps-3" style="width: 60px;">
+                                <span class="badge text-bg-light border">{{ i + 1 + (page-1)*15 }}</span>
+                            </td>
+
+                            <td>
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="rounded-circle bg-success-subtle text-success d-flex align-items-center justify-content-center"
+                                        style="width:40px;height:40px;">
+                                        <i class="bi bi-person-fill"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-semibold">{{ s.studentname_en }}</div>
+                                        <div class="text-muted" style="font-size:12px;">
+                                            ID: <span class="fw-semibold">{{ s.student_id }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td style="font-family: var(--kh-title);">{{ s.studentname_kh }}</td>
+
+                            <td>
+                                <span class="badge rounded-pill"
+                                    [ngClass]="s.gender === 'M' ? 'text-bg-primary' : 'text-bg-danger'">
+                                    <i class="bi me-1"
+                                        [ngClass]="s.gender === 'M' ? 'bi-gender-male' : 'bi-gender-female'"></i>
+                                    {{ s.gender === 'M' ? 'Male' : 'Female' }}
+                                </span>
+                            </td>
+
+                            <td class="text-end pe-3">
+                                <div class="btn-group btn-group-sm">
+                                    <!-- <button class="btn btn-outline-secondary" (click)="viewStudent(s)">
+                                        <i class="bi bi-eye"></i>
+                                    </button> -->
+                                    <button class="btn btn-outline-success" (click)="openEditModal(s)">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </button>
+                                    <button class="btn btn-outline-danger" (click)="confrimDelete(s)">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        } @else if(!searchText) {
+                        <tr>
+                            <td colspan="5" class="w-100 py-5">
+                                <app-loading class="d-flex justify-content-center align-items-center"></app-loading>
+                            </td>
+                        </tr>
+                        } @else {
+                        <tr>
+                            <td colspan="5" class="text-center py-4 text-muted">
+                                <i class="bi bi-inbox fs-3 d-block mb-2"></i>
+                                No students found.
+                            </td>
+                        </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div
+            class="card-footer bg-white rounded-3 border-0 d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2">
+            <div class="text-muted small">
+                Updated: <span class="fw-semibold">{{ lastUpdated }}</span>
+            </div>
+
+            <nav>
+                <ul class="pagination pagination-sm mb-0">
+                    <li class="page-item" [class.disabled]="page === 1">
+                        <button class="page-link text-bg-success" (click)="prevPage()"
+                            [ngClass]="page === 1? 'opacity-50':''">
+                            <i class="bi bi-arrow-left"></i>
+                        </button>
+                    </li>
+
+                    <li class="page-item disabled">
+                        <span class="page-link">Page {{ page }} / {{ totalPages }}</span>
+                    </li>
+
+                    <li class="page-item" [class.disabled]="page === totalPages || totalPages === 0">
+                        <button class="page-link text-bg-success"
+                            [ngClass]="page === totalPages || totalPages === 0? 'opacity-50':''" (click)="nextPage()">
+                            <i class="bi bi-arrow-right"></i>
+                        </button>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+
+</div>
+
+<!-- =================== Add/Edit Modal =================== -->
+<div class="modal fade" id="studentModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border rounded-3 shadow">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold">
+                    <i class="bi bi-person-lines-fill me-2 text-success"></i>
+                    {{ isEdit ? 'Edit Student' : 'Add Student' }}
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label class="form-label">English Name</label>
+                        <input class="form-control" [(ngModel)]="form.studentname_en" placeholder="e.g. Meach Sokhai" />
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label">Khmer Name</label>
+                        <input class="form-control" style="font-family: var(--kh-title);"
+                            [(ngModel)]="form.studentname_kh" placeholder="e.g. មៀច សុខហៃ" />
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label">Gender</label>
+                        <select class="form-select" [(ngModel)]="form.gender">
+                            <option value="M">Male</option>
+                            <option value="F">Female</option>
+                        </select>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label">Class</label>
+                        <select class="form-select" [(ngModel)]="form.class_id">
+                            @for(c of classes(); track $index){
+                            <option [value]="c.class_id">{{c.class_name}}</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+
+                <div class="alert alert-warning mt-3 mb-0" *ngIf="modalError">
+                    <i class="bi bi-exclamation-triangle me-2"></i>{{ modalError }}
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                <button class="btn btn-success" (click)="isEdit? saveStudent():createNewStudent()">
+                    <i class="bi bi-check2-circle me-1"></i> Save
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- =================== Toast Container =================== -->
+<div class="toast-container position-fixed bottom-0 start-0 p-3" style="z-index: 1100;">
+    <div id="appToast" class="toast align-items-center border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="bi me-2" [ngClass]="toastIcon"></i>
+                {{ toastMessage }}
+            </div>
+            <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== Class Picker Modal ===== -->
+<div class="modal fade" id="classPickerModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static"
+    data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold">
+                    <i class="bi bi-bank2 me-2 text-success"></i> Choose a Class
+                </h5>
+            </div>
+
+            <div class="modal-body">
+                <div class="text-muted small mb-3">
+                    Please select a class to view student list.
+                </div>
+
+                <label class="form-label fw-semibold">Class</label>
+                <select class="form-select form-select-lg" [(ngModel)]="selectedClass">
+                    <option value="" disabled>Select class...</option>
+                    <option *ngFor="let c of classes()" [value]="c.class_id">{{ c.class_name }}</option>
+                </select>
+
+                <div class="alert alert-warning mt-3 mb-0" *ngIf="classError">
+                    <i class="bi bi-exclamation-triangle me-2"></i>{{ classError }}
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-success" (click)="confirmClass()">
+                    <i class="bi bi-check2-circle me-1"></i> Continue
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

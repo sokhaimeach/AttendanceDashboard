@@ -1,1 +1,7 @@
 /* You can add global styles to this file, and also import other style files */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Khmer:wght@300;400;500;600;700&family=Koulen&display=swap');
+
+:root{
+  --kh-body: "Noto Sans Khmer", system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+  --kh-title: "Koulen", "Noto Sans Khmer", sans-serif;
+}
