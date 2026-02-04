@@ -1,0 +1,87 @@
+<div class="app-wrapper">
+    <!--begin::Header-->
+    <nav class="app-header navbar navbar-expand bg-body shadow-sm">
+        <div class="container-fluid">
+            <!--begin::Start Navbar Links-->
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" data-lte-toggle="sidebar" href="#" role="button">
+                        <i class="bi bi-list"></i>
+                    </a>
+                </li>
+            </ul>
+            <!--begin::End Navbar Links-->
+            <ul class="navbar-nav ms-auto">
+                <!-- Notifications and User Profile -->
+                <li class="nav-item dropdown user-menu">
+                    <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                        <img src="https://ui-avatars.com/api/?name=Hul+Makara&background=6366f1&color=fff" class="user-image rounded-circle shadow" alt="User Image" />
+                        <span class="d-none d-md-inline fw-bold ms-2">Hul Makara</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <!--end::Header-->
+    <!--begin::Sidebar-->
+    <aside class="app-sidebar bg-dark shadow-lg" data-bs-theme="dark">
+        <div class="sidebar-brand">
+            <a routerLink="/" class="brand-link">
+                <span class="brand-icon">🎓</span>
+                <span class="brand-text fw-bold ms-2">AttendEase</span>
+            </a>
+        </div>
+        <div class="sidebar-wrapper">
+            <nav class="mt-3">
+                <ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" role="navigation">
+                    <li class="nav-item">
+                        <a routerLink="/dashboard" routerLinkActive="active" class="nav-link">
+                            <i class="nav-icon bi bi-speedometer2 text-primary"></i>
+                            <p>Dashboard</p>
+                        </a>
+                    </li>
+                    <li class="nav-header text-uppercase opacity-50 small ms-3 mt-2">Management</li>
+                    <li class="nav-item">
+                        <a routerLink="/students" routerLinkActive="active" class="nav-link">
+                            <i class="nav-icon bi bi-people-fill text-info"></i>
+                            <p>Students</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a routerLink="/teachers" routerLinkActive="active" class="nav-link">
+                            <i class="nav-icon bi bi-person-badge-fill text-warning"></i>
+                            <p>Teachers</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a routerLink="/classes" routerLinkActive="active" class="nav-link">
+                            <i class="nav-icon bi bi-door-open-fill text-success"></i>
+                            <p>Classes</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a routerLink="/subjects" routerLinkActive="active" class="nav-link">
+                            <i class="nav-icon bi bi-book-half text-danger"></i>
+                            <p>Subjects</p>
+                        </a>
+                    </li>
+                    <li class="nav-header text-uppercase opacity-50 small ms-3 mt-2">Records</li>
+                    <li class="nav-item">
+                        <a routerLink="/attendance" routerLinkActive="active" class="nav-link">
+                            <i class="nav-icon bi bi-calendar-check-fill text-primary"></i>
+                            <p>Attendance</p>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </aside>
+    <!--end::Sidebar-->
+    <!--begin::App Main-->
+    <main class="app-main bg-light">
+        <div class="content-wrapper p-4">
+            <!-- <router-outlet></router-outlet> -->
+        </div>
+    </main>
+    <!--end::App Main-->
+</div>
