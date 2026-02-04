@@ -47,8 +47,8 @@ export class Studentservice {
   }
 
   // import file
-  importStudentByFile(file: any) {
-    return this.http.post(`${this.url}/import`, file);
+  importStudentByFile(file: any):Observable<{data: any}> {
+    return this.http.post<{data: any}>(`${this.url}/import`, file);
   }
 
   // download studend excel file
@@ -60,8 +60,10 @@ export class Studentservice {
 interface StudentInfo {
   statusCode: number;
   message: string;
-  totalStudent: number;
-  totalGirl: number;
-  totalBoy: number;
-  data: any[];
+  data: {
+    totalStudent: number;
+    totalGirl: number;
+    totalBoy: number;
+    data: any[];
+  }
 }

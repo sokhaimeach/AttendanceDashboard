@@ -1,0 +1,150 @@
+<div class="container py-4">
+
+    <!-- ========= Header ========= -->
+    <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3 mb-4">
+        <div>
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge rounded-pill text-bg-success">
+                    <i class="bi bi-building me-1"></i> Class
+                </span>
+                <h4 class="mb-0 fw-bold">Class Management</h4>
+            </div>
+            <div class="text-muted small mt-1">
+                Manage classes in your system
+            </div>
+        </div>
+
+        <!-- Right side (optional quick info badge only) -->
+        <div class="d-flex align-items-center gap-2">
+            <span class="badge text-bg-light border">
+                <i class="bi bi-collection me-1"></i> Total: 4 Classes
+            </span>
+        </div>
+    </div>
+
+    <!-- ========= Stats Cards ========= -->
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-md-6 col-xl-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body border rounded-3 d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="text-muted small">Total Classes</div>
+                        <div class="fw-bold display-6 mb-0">4</div>
+                        <div class="text-muted small">All classes available</div>
+                    </div>
+                    <div class="rounded-4 p-3 bg-primary-subtle text-primary">
+                        <i class="bi bi-grid-3x3-gap-fill fs-2"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-xl-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body border rounded-3 d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="text-muted small">Assigned Classes</div>
+                        <div class="fw-bold display-6 mb-0">3</div>
+                        <div class="text-muted small">SV13, SV23, SV35</div>
+                    </div>
+                    <div class="rounded-4 p-3 bg-success-subtle text-success">
+                        <i class="bi bi-check2-circle fs-2"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-xl-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body border rounded-3 d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="text-muted small">Unassigned</div>
+                        <div class="fw-bold display-6 mb-0">1</div>
+                        <div class="text-muted small">Class: unasign</div>
+                    </div>
+                    <div class="rounded-4 p-3 bg-warning-subtle text-warning">
+                        <i class="bi bi-exclamation-triangle fs-2"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========= Search Bar (Static) ========= -->
+    <div class="card border rounded-3 shadow-sm mb-4">
+        <div class="card-body">
+            <label class="form-label small text-muted mb-1">Search Class</label>
+            <div class="input-group">
+                <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                <input type="text" class="form-control" placeholder="Search by class name (e.g. SV23)" />
+                <button class="btn btn-outline-secondary" type="button">Clear</button>
+            </div>
+            <div class="text-muted small mt-2">Static UI (no filtering logic)</div>
+        </div>
+    </div>
+
+    <!-- ========= Class Table ========= -->
+    <div class="card border rounded-3 shadow-sm">
+        <div class="card-header bg-white border-0 rounded-3 d-flex align-items-center justify-content-between">
+            <div class="fw-semibold">
+                <i class="bi bi-table me-2 text-success"></i>Class List
+            </div>
+            <div class="text-muted small">
+                Showing <span class="fw-semibold">{{classes().length}}</span> classes
+            </div>
+        </div>
+
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered align-middle mb-0">
+                    <thead class="table-success position-sticky" style="top:0; z-index:1;">
+                        <tr>
+                            <th class="ps-3" style="width:70px;">No</th>
+                            <th style="width:120px;">Class ID</th>
+                            <th>Class Name</th>
+                            <th class="text-end pe-3" style="width:180px;">Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @for(c of classes(); track $index) {
+                        <tr>
+                            <td class="ps-3"><span class="badge text-bg-light border">{{$index + 1}}</span></td>
+                            <td class="fw-semibold">{{c.class_id}}</td>
+                            <td>
+                                @if(c.class_name !== 'unasign'){
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="badge rounded-pill text-bg-success">SV</span>
+                                    <div class="fw-semibold">{{c.class_name}}</div>
+                                </div>
+                                } @else {
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="badge rounded-pill text-bg-warning">!</span>
+                                    <div class="fw-semibold">unasign</div>
+                                    <span class="badge text-bg-warning-subtle text-warning border">Unassigned</span>
+                                </div>
+                                }
+                            </td>
+                            <td class="text-end pe-3">
+                                <div class="btn-group btn-group-sm">
+                                    <!-- <a href="#" class="btn btn-outline-secondary"><i class="bi bi-eye"></i></a> -->
+                                    <a href="#" class="btn btn-outline-success"><i class="bi bi-pencil-square"></i></a>
+                                    <a href="#" class="btn btn-outline-danger"><i class="bi bi-trash"></i></a>
+                                </div>
+                            </td>
+                        </tr>
+                        }
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- <div class="card-footer bg-white rounded-3 border-0">
+            <div class="text-muted small">
+                Static page layout • Bootstrap + Bootstrap Icons
+            </div>
+        </div> -->
+    </div>
+
+</div>

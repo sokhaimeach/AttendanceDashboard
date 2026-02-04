@@ -73,6 +73,7 @@
                         <div class="text-muted small">Class</div>
                         <select class="form-select form-select-lg fw-semibold mt-1" [(ngModel)]="selectedClass"
                             (change)="onClassChange()">
+                            <option [value]="0">All</option>
                             @for(c of classes(); track $index){
                             <option [value]="c.class_id">{{c.class_name}}</option>
                             }
@@ -174,7 +175,7 @@
             </div>
             <div class="text-muted small">
                 Showing <span class="fw-semibold">{{ pageStart }}–{{ pageEnd }}</span>
-                of <span class="fw-semibold">{{ students.length }}</span>
+                of <span class="fw-semibold">{{ students().length }}</span>
             </div>
         </div>
 
@@ -192,8 +193,8 @@
                     </thead>
 
                     <tbody>
-                        @if(students.length > 0) {
-                        <tr *ngFor="let s of students; let i = index">
+                        @if(students().length > 0) {
+                        <tr *ngFor="let s of students(); let i = index">
                             <td class="ps-3" style="width: 60px;">
                                 <span class="badge text-bg-light border">{{ i + 1 + (page-1)*15 }}</span>
                             </td>
@@ -356,42 +357,6 @@
                 {{ toastMessage }}
             </div>
             <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast"></button>
-        </div>
-    </div>
-</div>
-
-<!-- ===== Class Picker Modal ===== -->
-<div class="modal fade" id="classPickerModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static"
-    data-bs-keyboard="false">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow">
-            <div class="modal-header">
-                <h5 class="modal-title fw-bold">
-                    <i class="bi bi-bank2 me-2 text-success"></i> Choose a Class
-                </h5>
-            </div>
-
-            <div class="modal-body">
-                <div class="text-muted small mb-3">
-                    Please select a class to view student list.
-                </div>
-
-                <label class="form-label fw-semibold">Class</label>
-                <select class="form-select form-select-lg" [(ngModel)]="selectedClass">
-                    <option value="" disabled>Select class...</option>
-                    <option *ngFor="let c of classes()" [value]="c.class_id">{{ c.class_name }}</option>
-                </select>
-
-                <div class="alert alert-warning mt-3 mb-0" *ngIf="classError">
-                    <i class="bi bi-exclamation-triangle me-2"></i>{{ classError }}
-                </div>
-            </div>
-
-            <div class="modal-footer">
-                <button class="btn btn-success" (click)="confirmClass()">
-                    <i class="bi bi-check2-circle me-1"></i> Continue
-                </button>
-            </div>
         </div>
     </div>
 </div>

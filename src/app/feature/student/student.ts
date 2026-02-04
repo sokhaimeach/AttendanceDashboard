@@ -23,7 +23,7 @@ export class Student implements OnInit {
 
   private classModal: any;
 
-  students: StudentInterface[] = [];
+  students = signal<StudentInterface[]>([]);
 
   // filters
   searchText: string = '';
@@ -70,24 +70,8 @@ export class Student implements OnInit {
 
   ngOnInit() {
     this.loadClasses();
-    this.initClassModal();
+    this.loadStudentsByClass();
     this.initBootstrap();
-  }
-
-  private initClassModal() {
-    const el = document.getElementById('classPickerModal');
-    if (!el) return;
-
-    this.classModal = new bootstrap.Modal(el);
-
-    const saved = parseInt(sessionStorage.getItem('selectedClass') ?? '0');
-    if (saved !== 0) {
-      this.selectedClass = saved;
-      this.loadStudentsByClass();
-      return;
-    }
-
-    this.classModal.show();
   }
 
   confirmClass() {
@@ -117,12 +101,12 @@ export class Student implements OnInit {
       )
       .subscribe({
         next: (res) => {
-          this.students = res.data;
-          this.totalStudents = res.totalStudent;
-          this.totalGirls = res.totalGirl;
-          this.totalBoys = res.totalBoy;
+          this.students.set(res.data.data);
+          this.totalStudents = res.data.totalStudent;
+          this.totalGirls = res.data.totalGirl;
+          this.totalBoys = res.data.totalBoy;
           this.totalPages = Math.ceil(this.totalStudents / 15);
-          console.log('Fetched students:', this.students);
+          // console.log('Fetched students:', this.students());
         },
         error: (err) => {
           console.error('Error fetching students:', err);
@@ -204,6 +188,7 @@ export class Student implements OnInit {
     this.studentservice.importStudentByFile(formData).subscribe({
       next: (res) => {
         console.log(res);
+        this.showToast(`Add ${res.data.successCount}`, "success");
       },
       error: (err) => {
         console.error(err.message);
