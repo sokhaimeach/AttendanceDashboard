@@ -8,6 +8,5 @@ import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
   styleUrl: './admin-layout.css',
 })
 export class AdminLayout {
-    protected readonly title = signal('FrontEnd');
 
 }

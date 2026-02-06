@@ -4,8 +4,12 @@ import { RecordAttendance } from './feature/record-attendance/record-attendance'
 
 export const routes: Routes = [
     {path: '', redirectTo: 'admin-layout', pathMatch: 'full' },
-    {path: 'admin-layout', loadComponent: () => import('./layouts/admin-layout/admin-layout').then(c => c.AdminLayout)},
-    {path: 'record', component: RecordAttendance},
-    {path: 'student', loadComponent: () => import('./feature/student/student').then(c => c.Student)},
-    {path: 'class', loadComponent: () => import('./feature/class/class').then(c => c.Class)}
+    {path: 'admin-layout', loadComponent: () => import('./layouts/admin-layout/admin-layout').then(c => c.AdminLayout),
+        children: [
+            {path: '', redirectTo: 'students', pathMatch: 'full' },
+            {path: 'students', loadComponent: () => import('./feature/student/student').then(c => c.Student)},
+            {path: 'record', component: RecordAttendance},
+            {path: 'classes', loadComponent: () => import('./feature/class/class').then(c => c.Class)}
+        ]
+    },
 ];
