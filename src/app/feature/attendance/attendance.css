@@ -456,10 +456,17 @@
 }
 
 .subject-header {
-  font-size: 0.7rem;
-  padding: 0.5rem 0.25rem !important;
-  color: #64748b;
-  width: 60px;
+  margin: 0;
+  padding-top: 30px !important;
+}
+
+.subject-text {
+  transform: rotate(90deg); 
+  width: 20px; 
+  white-space: nowrap; 
+  display: flex; 
+  justify-content: center; 
+  align-items: center;
 }
 
 .day-separator {

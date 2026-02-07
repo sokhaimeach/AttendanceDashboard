@@ -9,7 +9,8 @@ export const routes: Routes = [
             {path: '', redirectTo: 'students', pathMatch: 'full' },
             {path: 'students', loadComponent: () => import('./feature/student/student').then(c => c.Student)},
             {path: 'record', component: RecordAttendance},
-            {path: 'classes', loadComponent: () => import('./feature/class/class').then(c => c.Class)}
+            {path: 'classes', loadComponent: () => import('./feature/class/class').then(c => c.Class)},
+            {path: 'attendance', loadComponent: () => import('./feature/attendance/attendance').then(c => c.Attendance)}
         ]
     },
 ];

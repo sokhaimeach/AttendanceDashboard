@@ -151,7 +151,7 @@ export class Attendance implements OnInit {
     };
   });
   ngOnInit() {
-    // this.loadClasses();
+    this.loadClasses();
     // Subjects are now static from WEEKLY_SCHEDULE, no need to load from API for selection
   }
   // Get the Monday of the current week
@@ -208,6 +208,26 @@ export class Attendance implements OnInit {
     }
   }
   loadClasses() {
+    this.classes.set([
+      {
+        classid: 1,
+        classname: "SV23",
+        room: '4F',
+        teacherid: 1
+      },
+      {
+        classid: 2,
+        classname: "SV13",
+        room: '4F',
+        teacherid: 1
+      },
+      {
+        classid: 3,
+        classname: "SV25",
+        room: '4F',
+        teacherid: 1
+      },
+    ]);
     console.log('Fetching classes from:', 'http://localhost:3000/api/classes');
     // this.http.get<any[]>('http://localhost:3000/api/classes').subscribe({
     //   next: (res: any) => {
@@ -227,9 +247,51 @@ export class Attendance implements OnInit {
   onClassChange() {
     const classId = Number(this.selectedClassId());
     if (classId > 0) {
-      this.loading.set(true);
+      // this.loading.set(true);
       // Load existing attendance for this class (all subjects)
       this.loadExistingAttendance(classId);
+      this.students.set([
+        {
+          studentid: 1,
+          studentname_kh: "មៀច សុខហៃ",
+          studentname_eng : "Meach Sokhai",
+          gender: "M",
+          classid: 1,
+          Class: {
+            classname: "SV23"
+          }
+        },
+        {
+          studentid: 2,
+          studentname_kh: "មៀច សុខហៃ",
+          studentname_eng : "Meach Sokhai",
+          gender: "M",
+          classid: 1,
+          Class: {
+            classname: "SV23"
+          }
+        },
+        {
+          studentid: 3,
+          studentname_kh: "មៀច សុខហៃ",
+          studentname_eng : "Meach Sokhai",
+          gender: "M",
+          classid: 1,
+          Class: {
+            classname: "SV23"
+          }
+        },
+        {
+          studentid: 4,
+          studentname_kh: "មៀច សុខហៃ",
+          studentname_eng : "Meach Sokhai",
+          gender: "M",
+          classid: 1,
+          Class: {
+            classname: "SV23"
+          }
+        },
+      ]);
       // this.http
       //   .get<any[]>(`http://localhost:3000/api/students/class/${classId}`)
       //   .subscribe({
@@ -273,12 +335,12 @@ export class Attendance implements OnInit {
   }
   toggleAttendance(studentId: number, date: string, subjectId: number) {
     const key = `${studentId}_${date}_${subjectId}`;
-    // const current = this.getAttendanceStatus(studentId, date, subjectId);
+    const current = this.getAttendanceStatus(studentId, date, subjectId);
     const newMap = new Map(this.attendanceMap());
-    // if (current === 'none') newMap.set(key, 'present');
-    // else if (current === 'present') newMap.set(key, 'absent');
-    // else newMap.delete(key);
-    // this.attendanceMap.set(newMap);
+    if (current === 'none') newMap.set(key, 'present');
+    else if (current === 'present') newMap.set(key, 'absent');
+    else newMap.delete(key);
+    this.attendanceMap.set(newMap);
   }
   saveAttendance() {
     const records: Attendance[] = [];

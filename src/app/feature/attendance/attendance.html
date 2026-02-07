@@ -118,10 +118,14 @@
             <th rowspan="2" class="col-total">Total</th>
           </tr>
           <!-- Row 2: Subjects -->
-          <tr>
+          <tr style="height: 130px;">
             @for (day of weeklySchedule; track day.day) {
             @for (slot of day.slots; track slot.id; let slotIndex = $index) {
-            <th class="subject-header" [class.day-separator]="slotIndex === 2">{{ slot.name }}</th>
+            <th class="subject-header" [class.day-separator]="slotIndex === 2">
+              <p class="subject-text">
+                {{ slot.name }}
+              </p>
+            </th>
             }
             }
           </tr>
