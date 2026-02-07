@@ -19,7 +19,7 @@ body {
 }
 .nav-link {
   border-radius: 8px !important;
-  margin: 0.25rem 0.75rem !important;
+  /* margin: 0.25rem 0.75rem !important; */
   transition: all 0.2s ease !important;
 }
 .nav-link:hover {
@@ -27,9 +27,11 @@ body {
   transform: translateX(3px);
 }
 .nav-link.active {
-  background: var(--primary-gradient) !important;
+  /* background: var(--primary-gradient) !important;
   box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
-  color: white !important;
+  color: white !important; */
+  background: rgba(255, 255, 255, 0.172) !important;
+  /* transform: translateX(3px); */
 }
 .nav-link.active i {
   color: white !important;
