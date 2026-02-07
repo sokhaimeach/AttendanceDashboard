@@ -1,8 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { StudentInterface } from '../../models/student.model';
+import { Studentservice } from '../../services/student/studentservice';
 
- interface Attendances {
+interface Attendances {
   id?: number;
   student_id: number;
   class_id: number;
@@ -14,17 +16,17 @@ import { FormsModule } from '@angular/forms';
   studentname_kh?: string;
   studentname_eng?: string;
 }
- interface Class {
-    classid?: number;
-    classname: string;
-    room: string;
-    teacherid?: number;
+interface Class {
+  classid?: number;
+  classname: string;
+  room: string;
+  teacherid?: number;
 }
 
- interface Student {
+interface Student {
   studentid?: number;
   studentname_kh: string;
-  studentname_eng : string;
+  studentname_eng: string;
   gender: string;
   classid: number;
   Class?: {
@@ -32,18 +34,18 @@ import { FormsModule } from '@angular/forms';
   };
 }
 
- interface StudentResponse {
+interface StudentResponse {
   totalItems: number;
   totalPages: number;
   currentPage: number;
   students: Student[];
 }
- interface Subject {
-    subjectid?: number;
-    subjectname: string;
-    description: string;
+interface Subject {
+  subjectid?: number;
+  subjectname: string;
+  description: string;
 }
- interface Teacher {
+interface Teacher {
   teacherid?: number;
   teachername_kh: string;
   teachername_en: string;
@@ -53,7 +55,7 @@ import { FormsModule } from '@angular/forms';
   subject?: string;
 }
 
- interface TeacherResponse {
+interface TeacherResponse {
   teachers: Teacher[];
   totalItems: number;
   totalPages: number;
@@ -70,58 +72,59 @@ export class Attendance implements OnInit {
   // private attendanceService = inject(AttendanceService);
   // private subjectService = inject(SubjectService);
   // private http = inject(HttpClient);
+  private studentservice = inject(Studentservice);
   classes = signal<any[]>([]);
-  students = signal<any[]>([]);
+  students = signal<StudentInterface[]>([]);
   WEEKLY_SCHEDULE = [
-  {
-    day: 'Monday',
-    slots: [
-      { id: 11, name: 'SM II' },
-      { id: 10, name: '2D' },
-      { id: 14, name: 'Oracle' },
-    ],
-  },
-  {
-    day: 'Tuesday',
-    slots: [
-      { id: 17, name: 'IS' },
-      { id: 13, name: 'WBD' },
-      { id: 12, name: 'Java' },
-    ],
-  },
-  {
-    day: 'Wednesday',
-    slots: [
-      { id: 14, name: 'Oracle' },
-      { id: 15, name: 'SA' },
-      { id: 11, name: 'SM II' },
-    ],
-  },
-  {
-    day: 'Thursday',
-    slots: [
-      { id: 13, name: 'WBD' },
-      { id: 15, name: 'SA' },
-      { id: 16, name: 'MIS' },
-    ],
-  },
-  {
-    day: 'Friday',
-    slots: [
-      { id: 16, name: 'MIS' },
-      { id: 17, name: 'IS' },
-      { id: 18, name: 'Networking III' },
-    ],
-  },
-  {
-    day: 'Saturday',
-    slots: [
-      { id: 18, name: 'Networking III' },
-      { id: 12, name: 'Java' },
-      { id: 10, name: '2D' },
-    ],
-  },
-];
+    {
+      day: 'Monday',
+      slots: [
+        { id: 11, name: 'SM II' },
+        { id: 10, name: '2D' },
+        { id: 14, name: 'Oracle' },
+      ],
+    },
+    {
+      day: 'Tuesday',
+      slots: [
+        { id: 17, name: 'IS' },
+        { id: 13, name: 'WBD' },
+        { id: 12, name: 'Java' },
+      ],
+    },
+    {
+      day: 'Wednesday',
+      slots: [
+        { id: 14, name: 'Oracle' },
+        { id: 15, name: 'SA' },
+        { id: 11, name: 'SM II' },
+      ],
+    },
+    {
+      day: 'Thursday',
+      slots: [
+        { id: 13, name: 'WBD' },
+        { id: 15, name: 'SA' },
+        { id: 16, name: 'MIS' },
+      ],
+    },
+    {
+      day: 'Friday',
+      slots: [
+        { id: 16, name: 'MIS' },
+        { id: 17, name: 'IS' },
+        { id: 18, name: 'Networking III' },
+      ],
+    },
+    {
+      day: 'Saturday',
+      slots: [
+        { id: 18, name: 'Networking III' },
+        { id: 12, name: 'Java' },
+        { id: 10, name: '2D' },
+      ],
+    },
+  ];
   // Weekly Schedule Data
   weeklySchedule = this.WEEKLY_SCHEDULE;
   // Week selection
@@ -210,22 +213,22 @@ export class Attendance implements OnInit {
   loadClasses() {
     this.classes.set([
       {
-        classid: 1,
-        classname: "SV23",
+        classid: 42,
+        classname: 'SV23',
         room: '4F',
-        teacherid: 1
+        teacherid: 1,
       },
       {
         classid: 2,
-        classname: "SV13",
+        classname: 'SV13',
         room: '4F',
-        teacherid: 1
+        teacherid: 1,
       },
       {
         classid: 3,
-        classname: "SV25",
+        classname: 'SV25',
         room: '4F',
-        teacherid: 1
+        teacherid: 1,
       },
     ]);
     console.log('Fetching classes from:', 'http://localhost:3000/api/classes');
@@ -247,51 +250,64 @@ export class Attendance implements OnInit {
   onClassChange() {
     const classId = Number(this.selectedClassId());
     if (classId > 0) {
-      // this.loading.set(true);
+      this.loading.set(true);
+
+      this.studentservice
+        .getStudentsByClassId(classId, '', '', '', 0)
+        .subscribe({
+          next: (res) => {
+            this.students.set(res.data.data);
+            this.loading.set(false);
+          },
+          error: (res) => {
+            console.error('Error fetch student ', res.error);
+          },
+        });
+
       // Load existing attendance for this class (all subjects)
       this.loadExistingAttendance(classId);
-      this.students.set([
-        {
-          studentid: 1,
-          studentname_kh: "មៀច សុខហៃ",
-          studentname_eng : "Meach Sokhai",
-          gender: "M",
-          classid: 1,
-          Class: {
-            classname: "SV23"
-          }
-        },
-        {
-          studentid: 2,
-          studentname_kh: "មៀច សុខហៃ",
-          studentname_eng : "Meach Sokhai",
-          gender: "M",
-          classid: 1,
-          Class: {
-            classname: "SV23"
-          }
-        },
-        {
-          studentid: 3,
-          studentname_kh: "មៀច សុខហៃ",
-          studentname_eng : "Meach Sokhai",
-          gender: "M",
-          classid: 1,
-          Class: {
-            classname: "SV23"
-          }
-        },
-        {
-          studentid: 4,
-          studentname_kh: "មៀច សុខហៃ",
-          studentname_eng : "Meach Sokhai",
-          gender: "M",
-          classid: 1,
-          Class: {
-            classname: "SV23"
-          }
-        },
-      ]);
+      // this.students.set([
+      //   {
+      //     studentid: 1,
+      //     studentname_kh: "មៀច សុខហៃ",
+      //     studentname_eng : "Meach Sokhai",
+      //     gender: "M",
+      //     classid: 1,
+      //     Class: {
+      //       classname: "SV23"
+      //     }
+      //   },
+      //   {
+      //     studentid: 2,
+      //     studentname_kh: "មៀច សុខហៃ",
+      //     studentname_eng : "Meach Sokhai",
+      //     gender: "M",
+      //     classid: 1,
+      //     Class: {
+      //       classname: "SV23"
+      //     }
+      //   },
+      //   {
+      //     studentid: 3,
+      //     studentname_kh: "មៀច សុខហៃ",
+      //     studentname_eng : "Meach Sokhai",
+      //     gender: "M",
+      //     classid: 1,
+      //     Class: {
+      //       classname: "SV23"
+      //     }
+      //   },
+      //   {
+      //     studentid: 4,
+      //     studentname_kh: "មៀច សុខហៃ",
+      //     studentname_eng : "Meach Sokhai",
+      //     gender: "M",
+      //     classid: 1,
+      //     Class: {
+      //       classname: "SV23"
+      //     }
+      //   },
+      // ]);
       // this.http
       //   .get<any[]>(`http://localhost:3000/api/students/class/${classId}`)
       //   .subscribe({
@@ -341,6 +357,7 @@ export class Attendance implements OnInit {
     else if (current === 'present') newMap.set(key, 'absent');
     else newMap.delete(key);
     this.attendanceMap.set(newMap);
+    console.log(this.attendanceMap());
   }
   saveAttendance() {
     const records: Attendance[] = [];
@@ -352,31 +369,35 @@ export class Attendance implements OnInit {
     this.attendanceMap().forEach((status, key) => {
       const parts = key.split('_');
       // Format: studentId_date_subjectId
-    //   if (parts.length === 3) {
-    //     const [student_id, attendance_date, subject_id] = parts;
-    //     records.push({
-    //       student_id: parseInt(student_id),
-    //       class_id: this.selectedClassId(),
-    //       subject_id: parseInt(subject_id),
-    //       attendance_date: attendance_date,
-    //       status: status as 'present' | 'absent',
-    //       teacher_id: teacherId,
-    //     });
-    //   }
-    // });
+      //   if (parts.length === 3) {
+      //     const [student_id, attendance_date, subject_id] = parts;
+      //     records.push({
+      //       student_id: parseInt(student_id),
+      //       class_id: this.selectedClassId(),
+      //       subject_id: parseInt(subject_id),
+      //       attendance_date: attendance_date,
+      //       status: status as 'present' | 'absent',
+      //       teacher_id: teacherId,
+      //     });
+      //   }
+      // });
 
-    if (records.length === 0) {
-      alert('No attendance data available to save.');
-      return;
-    }
+      if (records.length === 0) {
+        alert('No attendance data available to save.');
+        return;
+      }
 
-    // this.attendanceService
-    //   .submitDailyAttendance(records)
-    //   .subscribe(() => alert('Attendance Saved!'));
-  });
+      // this.attendanceService
+      //   .submitDailyAttendance(records)
+      //   .subscribe(() => alert('Attendance Saved!'));
+    });
   }
-  
-  getAttendanceStatus( studentId: number, date: string, subjectId: number,): string {
+
+  getAttendanceStatus(
+    studentId: number,
+    date: string,
+    subjectId: number,
+  ): string {
     return (
       this.attendanceMap().get(`${studentId}_${date}_${subjectId}`) || 'none'
     );
@@ -457,7 +478,7 @@ export class Attendance implements OnInit {
     // Row 1: Days
     // Row 2: Subjects
     this.students().forEach((student, index) => {
-      const row: any[] = [index + 1, student.studentname_eng, student.gender];
+      const row: any[] = [index + 1, student.studentname_en, student.gender];
       // Iterate through each day in the schedule
       // this.attendanceDates().forEach((date, i) => {
       //   if (i < this.weeklySchedule.length) {
@@ -476,7 +497,7 @@ export class Attendance implements OnInit {
       //   }
       // });
       // Add total present count
-      row.push(this.getPresentCount(student.studentid).toString());
+      row.push(this.getPresentCount(student.student_id || 0).toString());
       tableData.push(row);
     });
     // Prepare headers
@@ -563,7 +584,3 @@ export class Attendance implements OnInit {
     // doc.save(fileName);
   }
 }
-
-
-
-
