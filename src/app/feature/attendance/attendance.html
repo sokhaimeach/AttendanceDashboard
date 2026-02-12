@@ -16,7 +16,7 @@
       </div>
 
       <div class="header-actions">
-        <button class="btn-secondary" [disabled]="students().length === 0" (click)="saveAttendance()">
+        <button class="btn-secondary" [disabled]="attendances.length === 0" (click)="saveAttendance()">
           <i class="bi bi-cloud-check-fill"></i>
           <span>Save Changes</span>
         </button>
@@ -40,8 +40,8 @@
         <select class="filter-select" [ngModel]="selectedClassId()"
           (ngModelChange)="selectedClassId.set(+$event); onClassChange()">
           <option [value]="0">-- Choose a Class --</option>
-          @for (cls of classes(); track cls.classid) {
-          <option [value]="cls.classid">{{ cls.classname }}</option>
+          @for (cls of classes(); track cls.class_id) {
+          <option [value]="cls.class_id">{{ cls.class_name }}</option>
           }
         </select>
       </div>
@@ -58,7 +58,7 @@
 
           <div class="week-display">
             <small class="week-label">Week Starting</small>
-            <div class="week-date">{{ selectedWeekStart() | date:'dd/MM/yyyy' }}</div>
+            <!-- <div class="week-date">{{ selectedWeekStart() | date:'dd/MM/yyyy' }}</div> -->
             <input type="date" class="date-picker-hidden" [ngModel]="selectedWeekStart()"
               (ngModelChange)="onWeekStartChange($event)" title="Select Date" />
           </div>
@@ -109,7 +109,7 @@
             <th rowspan="2" class="fixed-col col-student">Student Name</th>
             <th rowspan="2" class="fixed-col col-gender">Sex</th>
 
-            @for (day of weeklySchedule; track day.day; let i = $index) {
+            @for (day of weeklySchedule(); track day.day; let i = $index) {
             <th colspan="3" class="day-header">
               <div class="day-name">{{ day.day }}</div>
               <div class="day-date">{{ attendanceDates()[i] | date: 'dd/MM/yyyy' }}</div>
@@ -118,12 +118,12 @@
             <th rowspan="2" class="col-total">Total</th>
           </tr>
           <!-- Row 2: Subjects -->
-          <tr style="height: 130px;">
-            @for (day of weeklySchedule; track day.day) {
+          <tr style="height: 60px;">
+            @for (day of weeklySchedule(); track day.day) {
             @for (slot of day.slots; track slot.id; let slotIndex = $index) {
             <th class="subject-header" [class.day-separator]="slotIndex === 2">
               <p class="subject-text">
-                {{ slot.name }}
+                {{ slot.subject_name }}
               </p>
             </th>
             }
@@ -131,11 +131,11 @@
           </tr>
         </thead>
         <tbody>
-          @for (student of students(); track student.student_id; let i = $index) {
+          @for (student of studentAttendances(); track student.student_id; let i = $index) {
           <tr class="student-row">
             <td class="student-number">{{ i + 1 }}</td>
             <td class="student-name-cell">
-              <div class="student-name-primary">{{ student.studentname_kh }}</div>
+              <div class="student-name-primary kh-font">{{ student.studentname_kh }}</div>
               <div class="student-name-secondary">{{ student.studentname_en }}</div>
             </td>
             <td class="student-gender">
@@ -145,24 +145,43 @@
               </span>
             </td>
 
-            @for (day of weeklySchedule; track day.day; let dIndex = $index) {
-            @for (slot of day.slots; track slot.id; let slotIndex = $index) {
+            @for(a of student.attendance; track $index) {
+              <td class="attendance-cell-wrapper" [class.day-separator]="($index+1) % 3 === 0">
+              <button class="attendance-cell" [disabled]="a.attendance_id===0 ? false : true"
+                (click)="toggleAttendance($index, a.status, student.student_id || 0, a.subject_id)">
+                @if (a.status === 1) {
+                <i class="bi bi-check-lg fs-4 status status-present"></i>
+                } @else if (a.status === 2) {
+                 <span class="status-absent status fs-5 fw-semibold">A</span>
+                } @else if(a.status === 3) {
+                  <span class="text-warning status fs-5 fw-semibold">AP</span>
+                }@else if (a.status === 4) {
+                  <span class="text-info status fs-5 fw-semibold">L</span>
+                }@else {
+                <span class="status-empty">•</span>
+                }
+              </button>
+            </td>
+            }
+
+            <!-- @for (day of weeklySchedule(); track day.day; let dIndex = $index) {
+            @for (slot of day.slots; track slot.subject_id; let slotIndex = $index) {
             <td class="attendance-cell-wrapper" [class.day-separator]="slotIndex === 2">
               <div class="attendance-cell"
-                (click)="toggleAttendance(student.student_id || 0, attendanceDates()[dIndex], slot.id)">
-                @if (getAttendanceStatus(student.student_id || 0, attendanceDates()[dIndex], slot.id) === 'present') {
-                <i class="bi bi-check-circle-fill status-present"></i>
-                } @else if (getAttendanceStatus(student.student_id || 0, attendanceDates()[dIndex], slot.id) === 'absent') {
-                <i class="bi bi-x-circle-fill status-absent"></i>
+                (click)="toggleAttendance(student.student_id || 0, attendanceDates()[dIndex], slot.subject_id)">
+                @if (getAttendanceStatus(student.student_id || 0, attendanceDates()[dIndex], slot.subject_id) === 'present') {
+                <i class="bi bi-check-lg fs-3 status-present"></i>
+                } @else if (getAttendanceStatus(student.student_id || 0, attendanceDates()[dIndex], slot.subject_id) === 'absent') {
+                 <span class="status-absent fs-3 fw-semibold">A</span>
                 } @else {
                 <span class="status-empty">•</span>
                 }
               </div>
             </td>
             }
-            }
+            } -->
 
-            <td class="total-cell">{{ getPresentCount(student.student_id || 0) }}</td>
+            <td class="total-cell">{{ student.attendance.length }}</td>
           </tr>
           } @empty {
           <tr>
@@ -182,19 +201,19 @@
     <div class="stats-footer">
       <div class="stat-item">
         <div class="stat-label">Total Students</div>
-        <div class="stat-value">{{ attendanceStats().totalStudents }}</div>
+        <div class="stat-value">{{ studentAttendances().length }}</div>
       </div>
       <div class="stat-item stat-present">
         <div class="stat-label">Present</div>
-        <div class="stat-value">{{ attendanceStats().present }}</div>
+        <div class="stat-value">{{ studentAttendances().length }}</div>
       </div>
       <div class="stat-item stat-absent">
         <div class="stat-label">Absent</div>
-        <div class="stat-value">{{ attendanceStats().absent }}</div>
+        <div class="stat-value">{{ studentAttendances().length }}</div>
       </div>
       <div class="stat-item stat-rate">
         <div class="stat-label">Attendance Rate</div>
-        <div class="stat-value">{{ attendanceStats().percentage }}%</div>
+        <div class="stat-value">{{ studentAttendances().length }}%</div>
       </div>
     </div>
     }

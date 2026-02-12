@@ -3,25 +3,13 @@ import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { StudentInterface } from '../../models/student.model';
 import { Studentservice } from '../../services/student/studentservice';
-
-interface Attendances {
-  id?: number;
-  student_id: number;
-  class_id: number;
-  subject_id: number;
-  attendance_date: string; // Format: 'YYYY-MM-DD'
-  status: 'present' | 'absent';
-  teacher_id?: number;
-  // Helper fields for UI
-  studentname_kh?: string;
-  studentname_eng?: string;
-}
-interface Class {
-  classid?: number;
-  classname: string;
-  room: string;
-  teacherid?: number;
-}
+import { Attendanceservice } from '../../services/attendance/attendanceservice';
+import {
+  AttendanceReportInterface,
+  CreateAttendanceInterface,
+} from '../../models/attendance.model';
+import { ClassInterface } from '../../models/class.model';
+import { Classservice } from '../../services/class/classservice';
 
 interface Student {
   studentid?: number;
@@ -34,17 +22,6 @@ interface Student {
   };
 }
 
-interface StudentResponse {
-  totalItems: number;
-  totalPages: number;
-  currentPage: number;
-  students: Student[];
-}
-interface Subject {
-  subjectid?: number;
-  subjectname: string;
-  description: string;
-}
 interface Teacher {
   teacherid?: number;
   teachername_kh: string;
@@ -55,13 +32,6 @@ interface Teacher {
   subject?: string;
 }
 
-interface TeacherResponse {
-  teachers: Teacher[];
-  totalItems: number;
-  totalPages: number;
-  currentPage: number;
-}
-
 @Component({
   selector: 'app-attendance',
   imports: [CommonModule, FormsModule],
@@ -69,64 +39,18 @@ interface TeacherResponse {
   styleUrl: './attendance.css',
 })
 export class Attendance implements OnInit {
-  // private attendanceService = inject(AttendanceService);
-  // private subjectService = inject(SubjectService);
-  // private http = inject(HttpClient);
+  // inject all need service
+  private classservice = inject(Classservice);
+  private attendanceservice = inject(Attendanceservice);
   private studentservice = inject(Studentservice);
-  classes = signal<any[]>([]);
+  // variables
+  classes = signal<ClassInterface[]>([]);
   students = signal<StudentInterface[]>([]);
-  WEEKLY_SCHEDULE = [
-    {
-      day: 'Monday',
-      slots: [
-        { id: 11, name: 'SM II' },
-        { id: 10, name: '2D' },
-        { id: 14, name: 'Oracle' },
-      ],
-    },
-    {
-      day: 'Tuesday',
-      slots: [
-        { id: 17, name: 'IS' },
-        { id: 13, name: 'WBD' },
-        { id: 12, name: 'Java' },
-      ],
-    },
-    {
-      day: 'Wednesday',
-      slots: [
-        { id: 14, name: 'Oracle' },
-        { id: 15, name: 'SA' },
-        { id: 11, name: 'SM II' },
-      ],
-    },
-    {
-      day: 'Thursday',
-      slots: [
-        { id: 13, name: 'WBD' },
-        { id: 15, name: 'SA' },
-        { id: 16, name: 'MIS' },
-      ],
-    },
-    {
-      day: 'Friday',
-      slots: [
-        { id: 16, name: 'MIS' },
-        { id: 17, name: 'IS' },
-        { id: 18, name: 'Networking III' },
-      ],
-    },
-    {
-      day: 'Saturday',
-      slots: [
-        { id: 18, name: 'Networking III' },
-        { id: 12, name: 'Java' },
-        { id: 10, name: '2D' },
-      ],
-    },
-  ];
+  studentAttendances = signal<AttendanceReportInterface[]>([]);
+  attendances: CreateAttendanceInterface[] = [];
+  attIndex: number = -1;
   // Weekly Schedule Data
-  weeklySchedule = this.WEEKLY_SCHEDULE;
+  weeklySchedule = signal<any[]>([]);
   // Week selection
   selectedWeekStart = signal<string>(this.getCurrentWeekStart());
   attendanceDates = computed(() =>
@@ -136,25 +60,26 @@ export class Attendance implements OnInit {
   // Removed selectedSubjectId as we now show all subjects
   loading = signal<boolean>(false);
   // Key format: `${studentId}_${date}_${subjectId}`
-  attendanceMap = signal<Map<string, string>>(new Map());
-  attendanceStats = computed(() => {
-    const map = this.attendanceMap();
-    let present = 0;
-    map.forEach((status: string) => {
-      if (status === 'present') present++;
-    });
-    // Calculate total possible slots based on schedule (6 days * 3 slots = 18 slots per student)
-    const totalPossible = this.students().length * 18;
-    return {
-      totalStudents: this.students().length,
-      present: present,
-      absent: totalPossible - present,
-      percentage:
-        totalPossible > 0 ? ((present / totalPossible) * 100).toFixed(1) : '0',
-    };
-  });
+  // attendanceMap = signal<Map<string, string>>(new Map());
+  // attendanceStats = computed(() => {
+  //   const map = this.attendanceMap();
+  //   let present = 0;
+  //   map.forEach((status: string) => {
+  //     if (status === 'present') present++;
+  //   });
+  //   // Calculate total possible slots based on schedule (6 days * 3 slots = 18 slots per student)
+  //   const totalPossible = this.students().length * 18;
+  //   return {
+  //     totalStudents: this.students().length,
+  //     present: present,
+  //     absent: totalPossible - present,
+  //     percentage:
+  //       totalPossible > 0 ? ((present / totalPossible) * 100).toFixed(1) : '0',
+  //   };
+  // });
   ngOnInit() {
     this.loadClasses();
+    this.loadSchedule();
     // Subjects are now static from WEEKLY_SCHEDULE, no need to load from API for selection
   }
   // Get the Monday of the current week
@@ -187,14 +112,18 @@ export class Attendance implements OnInit {
   // Navigate to previous week
   previousWeek() {
     const currentStart = new Date(this.selectedWeekStart());
-    currentStart.setDate(currentStart.getDate() - 7);
+    const day = (currentStart.getUTCDay() + 6) % 7;
+    currentStart.setUTCDate(currentStart.getUTCDate() - day - 7);
+    currentStart.setUTCHours(0, 0, 0, 0);
     this.selectedWeekStart.set(this.formatDate(currentStart));
     this.reloadAttendanceForNewWeek();
   }
   // Navigate to next week
   nextWeek() {
     const currentStart = new Date(this.selectedWeekStart());
-    currentStart.setDate(currentStart.getDate() + 7);
+    currentStart.setUTCHours(0, 0, 0, 0);
+    const day = (currentStart.getUTCDay() + 6) % 7;
+    currentStart.setUTCDate(currentStart.getUTCDate() - day + 7);
     this.selectedWeekStart.set(this.formatDate(currentStart));
     this.reloadAttendanceForNewWeek();
   }
@@ -207,62 +136,55 @@ export class Attendance implements OnInit {
   reloadAttendanceForNewWeek() {
     const classId = Number(this.selectedClassId());
     if (classId > 0) {
-      // this.loadExistingAttendance(classId);
+      this.onClassChange();
     }
   }
-  loadClasses() {
-    this.classes.set([
-      {
-        classid: 42,
-        classname: 'SV23',
-        room: '4F',
-        teacherid: 1,
+
+  // load schedule
+  loadSchedule() {
+    this.attendanceservice.getSchedule().subscribe({
+      next: (res) => {
+        this.weeklySchedule.set(res.data);
+        console.log(this.weeklySchedule());
       },
-      {
-        classid: 2,
-        classname: 'SV13',
-        room: '4F',
-        teacherid: 1,
+      error: (err) => {
+        console.error('Error get schedule');
       },
-      {
-        classid: 3,
-        classname: 'SV25',
-        room: '4F',
-        teacherid: 1,
-      },
-    ]);
-    console.log('Fetching classes from:', 'http://localhost:3000/api/classes');
-    // this.http.get<any[]>('http://localhost:3000/api/classes').subscribe({
-    //   next: (res: any) => {
-    //     const finalData = Array.isArray(res)
-    //       ? res
-    //       : res.data || res.classes || [];
-    //     this.classes.set(finalData);
-    //   },
-    //   error: (err) => {
-    //     console.error('HTTP Error:', err);
-    //     alert(
-    //       'Could not connect to API. Check if your Node.js server is running on port 3000.',
-    //     );
-    //   },
-    // });
+    });
   }
+
+  loadClasses() {
+    this.classservice.getAllClasses().subscribe({
+      next: (res) => {
+        this.classes.set(res.data);
+      }
+    });
+  }
+
   onClassChange() {
     const classId = Number(this.selectedClassId());
     if (classId > 0) {
       this.loading.set(true);
 
-      this.studentservice
-        .getStudentsByClassId(classId, '', '', '', 0)
-        .subscribe({
-          next: (res) => {
-            this.students.set(res.data.data);
-            this.loading.set(false);
-          },
-          error: (res) => {
-            console.error('Error fetch student ', res.error);
-          },
-        });
+      // this.studentservice
+      //   .getStudentsByClassId(classId, '', '', '', 0)
+      //   .subscribe({
+      //     next: (res) => {
+      //       this.students.set(res.data.data);
+      //       this.loading.set(false);
+      //     },
+      //     error: (res) => {
+      //       console.error('Error fetch student ', res.error);
+      //     },
+      //   });
+
+      this.attendanceservice.getAttendanceReportByClass(this.selectedClassId(), this.selectedWeekStart()).subscribe({
+        next: (res) => {
+          this.studentAttendances.set(res.data);
+          console.log(this.studentAttendances());
+          this.loading.set(false);
+        },
+      });
 
       // Load existing attendance for this class (all subjects)
       this.loadExistingAttendance(classId);
@@ -322,6 +244,7 @@ export class Attendance implements OnInit {
       //   });
     }
   }
+
   loadExistingAttendance(classId: number) {
     // We want to load attendance for ALL subjects for this class
     // The service might need to support fetching without subjectId or we fetch specific subjects
@@ -349,92 +272,76 @@ export class Attendance implements OnInit {
     //     this.attendanceMap.set(newMap);
     //   });
   }
-  toggleAttendance(studentId: number, date: string, subjectId: number) {
-    const key = `${studentId}_${date}_${subjectId}`;
-    const current = this.getAttendanceStatus(studentId, date, subjectId);
-    const newMap = new Map(this.attendanceMap());
-    if (current === 'none') newMap.set(key, 'present');
-    else if (current === 'present') newMap.set(key, 'absent');
-    else newMap.delete(key);
-    this.attendanceMap.set(newMap);
-    console.log(this.attendanceMap());
+  toggleAttendance(
+    index: number,
+    status: number,
+    studentId: number,
+    subjectId: number,
+  ) {
+    status = status < 4 ? status + 1 : 0;
+    const att = this.studentAttendances().find(
+      (sa) => sa.student_id === studentId,
+    )?.attendance[index];
+    if (!att) return;
+    att.status = status;
+    this.attIndex = index;
+
+    const existing = this.attendances.find(
+      (a) => a.student_id === studentId && a.subject_id === subjectId,
+    );
+    if (existing) {
+      existing.status = status;
+    } else {
+      this.attendances.push({
+        student_id: studentId,
+        subject_id: subjectId,
+        teacher_id: 1,
+        status: status,
+      });
+    }
   }
   saveAttendance() {
-    const records: Attendance[] = [];
-    const currentClass = this.classes().find(
-      (c: any) => c.classid == this.selectedClassId(),
-    );
-    const teacherId = currentClass ? currentClass.teacherid : undefined;
+    this.fillBlankStatus();
+    
+    this.attendanceservice.createManyAttendances(this.attendances).subscribe({
+      next: (res) => {
+        this.onClassChange();
+      } 
+    })
+  }
 
-    this.attendanceMap().forEach((status, key) => {
-      const parts = key.split('_');
-      // Format: studentId_date_subjectId
-      //   if (parts.length === 3) {
-      //     const [student_id, attendance_date, subject_id] = parts;
-      //     records.push({
-      //       student_id: parseInt(student_id),
-      //       class_id: this.selectedClassId(),
-      //       subject_id: parseInt(subject_id),
-      //       attendance_date: attendance_date,
-      //       status: status as 'present' | 'absent',
-      //       teacher_id: teacherId,
-      //     });
-      //   }
-      // });
-
-      if (records.length === 0) {
-        alert('No attendance data available to save.');
-        return;
+  // fill blank status
+  fillBlankStatus() {
+    const blankAtts = this.studentAttendances()
+    .filter(s => s.attendance[this.attIndex].status === 0)
+    .flatMap(sa => {
+      const att = sa.attendance[this.attIndex];
+      return {
+        student_id: sa.student_id,
+        subject_id: att.subject_id,
+        teacher_id: 1,
+        status: 2,
       }
-
-      // this.attendanceService
-      //   .submitDailyAttendance(records)
-      //   .subscribe(() => alert('Attendance Saved!'));
     });
-  }
 
-  getAttendanceStatus(
-    studentId: number,
-    date: string,
-    subjectId: number,
-  ): string {
-    return (
-      this.attendanceMap().get(`${studentId}_${date}_${subjectId}`) || 'none'
-    );
-  }
-
-  getPresentCount(studentId: number): number {
-    let count = 0;
-    // Iterate over all dates and all slots in schedule
-    this.attendanceDates().forEach((date, index) => {
-      // Get schedule for this day (index corresponds to Mon-Sat)
-      // Note: WEEKLY_SCHEDULE is 0-5 (Mon-Sat). attendanceDates are also 6 days.
-      // if (index < this.weeklySchedule.length) {
-      //   const dailySchedule = this.weeklySchedule[index];
-      //   dailySchedule.slots.forEach((slot) => {
-      //     if (
-      //       this.getAttendanceStatus(studentId, date, slot.id) === 'present'
-      //     ) {
-      //       count++;
-      //     }
-      //   });
-      // }
+    blankAtts.forEach(b => {
+      this.attendances.push(b);
     });
-    return count;
   }
   getSelectedClassName() {
     return (
-      this.classes().find((c: any) => c.classid == this.selectedClassId())
-        ?.classname || ''
+      this.classes().find((c: any) => c.class_id == this.selectedClassId())
+        ?.class_name || ''
     );
   }
   getSelectedTeacherName() {
-    return (
-      this.classes().find((c: any) => c.classid == this.selectedClassId())
-        ?.Teacher?.teachername_en || 'Unknown Teacher'
-    );
+    // return (
+    //   this.classes().find((c: any) => c.classid == this.selectedClassId())
+    //     ?.Teacher?.teachername_en || 'Unknown Teacher'
+    // );
   }
-  // Format date for table header (e.g., "Mon 05/01")
+
+  
   formatDateHeader(dateStr: string): string {
     const date = new Date(dateStr);
     const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -443,144 +350,19 @@ export class Attendance implements OnInit {
     const day = String(date.getDate()).padStart(2, '0');
     return `${dayName} ${month}/${day}`;
   }
+
   async exportAttendance() {
-    if (this.students().length === 0) {
-      alert('No data to export. Please select a class first.');
-      return;
-    }
-    const className = this.getSelectedClassName();
-    // Create a temporary canvas to render Khmer text
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    if (!ctx) {
-      alert('Canvas not supported');
-      return;
-    }
-    // const doc = new jsPDF({
-    //   orientation: 'landscape',
-    //   unit: 'mm',
-    //   format: 'a4',
-    // });
-    // Add title
-    // doc.setFontSize(18);
-    // doc.setFont('helvetica', 'bold');
-    // doc.text('Weekly Attendance Report', 148, 15, { align: 'center' });
-    // // Add class and teacher info
-    // doc.setFontSize(11);
-    // doc.setFont('helvetica', 'normal');
-    // doc.text(`Class: ${className}`, 14, 25);
-    // doc.text(`Teacher: ${this.getSelectedTeacherName()}`, 14, 31);
-    // doc.text(`Generated: ${new Date().toLocaleDateString()}`, 14, 37);
-    // Prepare table data
-    const tableData: any[] = [];
-    // Headers: No | Name | Sex | Mo | | | Tu | | | ... | Total
-    // We need 2 header rows because we have 3 subjects per day.
-    // Row 1: Days
-    // Row 2: Subjects
-    this.students().forEach((student, index) => {
-      const row: any[] = [index + 1, student.studentname_en, student.gender];
-      // Iterate through each day in the schedule
-      // this.attendanceDates().forEach((date, i) => {
-      //   if (i < this.weeklySchedule.length) {
-      //     const daily = this.weeklySchedule[i];
-      //     // Add status for each slot (subject) in that day
-      //     daily.slots.forEach((slot) => {
-      //       const status = this.getAttendanceStatus(
-      //         student.studentid,
-      //         date,
-      //         slot.id,
-      //       );
-      //       row.push(
-      //         status === 'present' ? 'P' : status === 'absent' ? 'A' : '-',
-      //       );
-      //     });
-      //   }
-      // });
-      // Add total present count
-      row.push(this.getPresentCount(student.student_id || 0).toString());
-      tableData.push(row);
+    this.attendanceservice
+    .downloadAttendance(this.selectedClassId())
+    .subscribe((blob) => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+
+      a.href = url;
+      a.download = 'attendance-report.xlsx';
+      a.click();
+
+      window.URL.revokeObjectURL(url);
     });
-    // Prepare headers
-    // Top header: Days
-    const topHeader: any[] = [
-      { content: 'No', rowSpan: 2, styles: { halign: 'center' } },
-      { content: 'Student Name', rowSpan: 2, styles: { halign: 'center' } },
-      { content: 'Sex', rowSpan: 2, styles: { halign: 'center' } },
-    ];
-    // Sub header: Subjects
-    const subHeader: any[] = [];
-    // this.weeklySchedule.forEach((day) => {
-    //   topHeader.push({
-    //     content: day.day,
-    //     colSpan: 3,
-    //     styles: { halign: 'center' },
-    //   });
-    //   day.slots.forEach((slot) => {
-    //     subHeader.push({
-    //       content: slot.name,
-    //       styles: { fontSize: 7, halign: 'center' },
-    //     });
-    //   });
-    // });
-    topHeader.push({
-      content: 'Total',
-      rowSpan: 2,
-      styles: { halign: 'center', fontStyle: 'bold' },
-    } as any);
-    // Generate table
-    // autoTable(doc, {
-    //   head: [topHeader, subHeader],
-    //   body: tableData,
-    //   startY: 43,
-    //   theme: 'grid',
-    //   styles: {
-    //     fontSize: 8,
-    //     cellPadding: 2,
-    //     lineColor: [200, 200, 200],
-    //     lineWidth: 0.1,
-    //   },
-    //   headStyles: {
-    //     fillColor: [41, 128, 185],
-    //     textColor: 255,
-    //     fontStyle: 'bold',
-    //     halign: 'center',
-    //     fontSize: 9,
-    //     valign: 'middle',
-    //   },
-    //   columnStyles: {
-    //     0: { cellWidth: 10, halign: 'center' },
-    //     1: { cellWidth: 40, halign: 'left' },
-    //     2: { cellWidth: 10, halign: 'center' },
-    //   },
-    //   didDrawCell: (data: any) => {
-    //     // Color code attendance marks
-    //     // Columns > 2 are attendance data
-    //     if (
-    //       data.section === 'body' &&
-    //       data.column.index > 2 &&
-    //       data.column.index < 3 + 18 // 3 fixed cols + 18 slots
-    //     ) {
-    //       const value = data.cell.text[0];
-    //       if (value === 'P') {
-    //         doc.setTextColor(39, 174, 96); // Green
-    //       } else if (value === 'A') {
-    //         doc.setTextColor(231, 76, 60); // Red
-    //       }
-    //     }
-    //   },
-    //   didDrawPage: (data: any) => {
-    //     doc.setTextColor(0, 0, 0);
-    //     const pageCount = (doc as any).internal.getNumberOfPages();
-    //     doc.setFontSize(8);
-    //     doc.text(
-    //       `Page ${data.pageNumber} of ${pageCount}`,
-    //       doc.internal.pageSize.getWidth() / 2,
-    //       doc.internal.pageSize.getHeight() - 10,
-    //       { align: 'center' },
-    //     );
-    //   },
-    // });
-    // const fileName = `Attendance_${className.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
-    // doc.save(fileName);
   }
 }
