@@ -7,6 +7,11 @@ export interface AttendanceReportInterface {
   gender: string;
   class_id: string;
   attendance: Attendance[];
+  total_p: number;
+  total_a: number;
+  total_ap: number;
+  total_l: number;
+  total: number;
 }
 
 interface Attendance {

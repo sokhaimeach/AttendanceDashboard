@@ -1,0 +1,29 @@
+p {
+    margin: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+svg {
+  display: inline;
+  width: 1rem;
+  height: 1rem;
+  margin-right: 0.75rem;
+  color: white;
+  animation: spin_357 1s linear infinite;
+}
+
+span {
+    font-size: 12px;
+}
+
+@keyframes spin_357 {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}

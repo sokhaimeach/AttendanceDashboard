@@ -1,231 +1,396 @@
-<div class="attendance-module">
-  <!-- GRADIENT BACKGROUND -->
-  <div class="gradient-bg"></div>
+<div class="container-fluid py-3 attendance-wrap">
 
-  <!-- HEADER SECTION -->
-  <div class="header-section">
-    <div class="header-content">
-      <div class="header-left">
-        <div class="icon-wrapper">
+  <!-- EXCEL STYLE HEADER + FILTERS -->
+  <div class="card excel-header-sheet mb-3">
+
+    <!-- Top row (title + actions) -->
+    <div class="excel-header-top">
+      <div class="d-flex align-items-center gap-2">
+        <div class="excel-icon-cell">
           <i class="bi bi-calendar-check-fill"></i>
         </div>
-        <div>
-          <h2 class="module-title">Class Attendance Sheet</h2>
-          <p class="module-subtitle">Academic Year 2025-2026 • Teacher Portal</p>
+
+        <div class="excel-head-text">
+          <div class="excel-head-title">Class Attendance Sheet</div>
+          <div class="excel-head-subtitle">Academic Year 2025-2026 • Teacher Portal</div>
         </div>
       </div>
 
-      <div class="header-actions">
-        <button class="btn-secondary" [disabled]="attendances.length === 0" (click)="saveAttendance()">
-          <i class="bi bi-cloud-check-fill"></i>
-          <span>Save Changes</span>
-        </button>
+      <div class="d-flex gap-2">
+        <!-- <button
+        class="btn excel-btn excel-btn-save"
+        [disabled]="attendances.length === 0"
+        (click)="saveAttendance()"
+      >
+        <i class="bi bi-cloud-check-fill me-1"></i>
+        Save Changes
+      </button> -->
 
-        <button class="btn-primary" (click)="exportAttendance()">
-          <i class="bi bi-file-earmark-pdf-fill"></i>
-          <span>Export PDF</span>
+        <button class="btn excel-btn excel-btn-export" (click)="exportAttendance()">
+          @if(!loadingExport()) {
+          <i class="bi bi-file-earmark-arrow-down-fill me-1"></i>
+          Export
+          } @else {
+          <app-text-loading></app-text-loading>
+          }
         </button>
       </div>
     </div>
-  </div>
 
-  <!-- FILTER CARD -->
-  <div class="filter-card glass-card">
-    <div class="filter-row">
-      <div class="filter-group">
-        <label class="filter-label">
-          <i class="bi bi-door-open-fill"></i>
-          Select Class
-        </label>
-        <select class="filter-select" [ngModel]="selectedClassId()"
-          (ngModelChange)="selectedClassId.set(+$event); onClassChange()">
-          <option [value]="0">-- Choose a Class --</option>
-          @for (cls of classes(); track cls.class_id) {
-          <option [value]="cls.class_id">{{ cls.class_name }}</option>
-          }
-        </select>
+    <!-- Divider like Excel row line -->
+    <div class="excel-divider"></div>
+
+    <!-- Filters row -->
+    <div class="excel-filters-row">
+      <!-- Class -->
+      <div class="excel-filter-block">
+        <div class="excel-filter-label">
+          <i class="bi bi-door-open-fill me-1"></i> Select Class
+        </div>
+
+        <div>
+          <select class="excel-control" [ngModel]="selectedClassId()"
+            (ngModelChange)="selectedClassId.set(+$event); onClassChange()">
+            <option [value]="0">Please, choose a Class</option>
+            @for (cls of classes(); track cls.class_id) {
+            <option [value]="cls.class_id">{{ cls.class_name }}</option>
+            }
+          </select>
+        </div>
       </div>
 
-      <div class="filter-group flex-grow">
-        <label class="filter-label">
-          <i class="bi bi-calendar-range-fill"></i>
-          Time Period
-        </label>
-        <div class="week-picker">
-          <button class="week-nav-btn" (click)="previousWeek()" title="Previous Week">
+      <!-- Time period -->
+      <div class="excel-filter-block">
+        <div class="excel-filter-label">
+          <i class="bi bi-calendar-range-fill me-1"></i> Time Period
+        </div>
+
+        <div class="excel-time-controls">
+          <button class="btn excel-nav-btn" (click)="previousWeek()" title="Previous Week">
             <i class="bi bi-chevron-left"></i>
           </button>
 
-          <div class="week-display">
-            <small class="week-label">Week Starting</small>
-            <!-- <div class="week-date">{{ selectedWeekStart() | date:'dd/MM/yyyy' }}</div> -->
-            <input type="date" class="date-picker-hidden" [ngModel]="selectedWeekStart()"
-              (ngModelChange)="onWeekStartChange($event)" title="Select Date" />
+          <div class="excel-control excel-date-cell">
+            <input type="date" class="excel-date-input" [ngModel]="selectedWeekStart()"
+              (ngModelChange)="onWeekStartChange($event)" />
           </div>
 
-          <button class="week-nav-btn" (click)="nextWeek()" title="Next Week">
+          <button class="btn excel-nav-btn" (click)="nextWeek()" title="Next Week">
             <i class="bi bi-chevron-right"></i>
           </button>
 
-          <button class="today-btn" (click)="selectedWeekStart.set(getCurrentWeekStart()); reloadAttendanceForNewWeek()"
-            title="Jump to Current Week">
-            <i class="bi bi-calendar-event-fill"></i>
-            <span>Today</span>
+          <button class="btn excel-today-btn" [class.active]="isToday()" (click)="jumpToCurrentWeek()">
+            <i class="bi bi-calendar-event-fill me-1"></i>
+            Today
           </button>
         </div>
+
       </div>
+
+      <!-- SEARCH AND FILTER -->
+      <div>
+        <div class="search h-50">
+          <div class="search-icon" (click)="searchQuery? search():''">
+            <i class="bi bi-search search-icon"></i>
+          </div>
+          <input class="search-input" type="text" placeholder="Search student by name..." [(ngModel)]="searchQuery"
+            (keydown.enter)="search()">
+        </div>
+
+        <!-- Filter by status + Check all -->
+        <div class="filter-and-check">
+          <!-- Status filter -->
+          <div class="filter-status">
+            <div class="excel-filter-label mt-1">
+              <i class="bi bi-funnel-fill me-2"></i>
+              <span>Status</span>
+            </div>
+
+            <select class="select-status" [(ngModel)]="selectedStatus" (change)="onClassChange()">
+              <option [value]="0">All</option>
+              <option [value]="1">P</option>
+              <option [value]="2">A</option>
+              <option [value]="3">AP</option>
+              <option [value]="4">L</option>
+            </select>
+          </div>
+
+          <!-- Check all -->
+          <div class="check-all">
+            <div class="excel-filter-label mt-1">
+              <i class="bi bi-clipboard-check-fill me-2"></i>
+              <span>Check All</span>
+            </div>
+
+            <label class="switch" title="Mark all for today">
+              <input type="checkbox" [(ngModel)]="isCheckAll" />
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+
+      </div>
+
     </div>
   </div>
 
   @if (selectedClassId() > 0) {
-  <!-- ATTENDANCE TABLE CARD -->
-  <div class="data-card glass-card">
-    <div class="card-header-custom">
-      <div class="header-info">
-        <h5 class="class-title">
-          <i class="bi bi-people-fill"></i>
-          {{ getSelectedClassName() }}
-        </h5>
-        <div class="teacher-info">
-          <i class="bi bi-person-badge-fill"></i>
-          Teacher: <span class="teacher-name">{{ getSelectedTeacherName() }}</span>
+  <!-- TABLE CARD -->
+  <div class="card excel-header-sheet">
+    <div class="card-body pt-3">
+
+      @if (loading()) {
+      <div class="text-center py-5">
+        <div class="spinner-border" role="status"></div>
+        <div class="text-secondary mt-2">Fetching class records...</div>
+      </div>
+      } @else {
+
+      <div class="table-responsive excel-scroll">
+        <table class="table table-bordered table-sm align-middle excel-table mb-0">
+          <!-- fixed widths -->
+          <colgroup>
+            <col style="width: 40px" />
+            <col style="width: auto; min-width: 120px;" />
+            <col style="width: 50px; min-width: 40px;" />
+
+            <!-- subjects: fixed same width -->
+            @for (day of weeklySchedule(); track day.day) {
+            @for (slot of day.slots; track slot.id) {
+            <col style="width: 34px; min-width: 29px;" />
+            }
+            }
+
+            <!-- totals -->
+            <col style="width: 34px; min-width: 29px;" />
+            <col style="width: 34px; min-width: 29px;" />
+            <col style="width: 34px; min-width: 29px;" />
+            <col style="width: 34px; min-width: 29px;" />
+            <col style="width: 34px; min-width: 29px;" />
+          </colgroup>
+
+          <thead>
+            <!-- ROW 1: Days -->
+            <tr>
+              <th rowspan="2" class="col-no text-center">No</th>
+              <th rowspan="2" class="col-student text-start">Student Name</th>
+              <th rowspan="2" class="col-sex text-center">Sex</th>
+
+              @for (day of weeklySchedule(); track day.day; let i = $index) {
+              <th colspan="3" class="excel-day-head" [class.excel-today]="isTodayDate(attendanceDates()[i])">
+                <div class="excel-day-name">{{ day.day }}</div>
+                <div class="excel-day-date">{{ attendanceDates()[i] | date:'dd/MM/yyyy' }}</div>
+              </th>
+              }
+
+              <th colspan="5" class="excel-total-head">TOTAL</th>
+            </tr>
+
+            <!-- ROW 2: Subjects + Total breakdown -->
+            <tr>
+              @for (day of weeklySchedule(); track day.day) {
+              @for (slot of day.slots; track slot.id; let slotIndex = $index) {
+              <th class="excel-subject-head" [class.sep-right]="slotIndex === 2">
+                <span class="excel-rotate">{{ slot.subject_name }}</span>
+              </th>
+              }
+              }
+
+              <th class="excel-total-col excel-mark--p">P</th>
+              <th class="excel-total-col excel-mark--a">A</th>
+              <th class="excel-total-col excel-text--ap">AP</th>
+              <th class="excel-total-col excel-text--l">L</th>
+              <th class="excel-total-col">T</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            @for (student of studentAttendances(); track student.student_id; let i = $index) {
+            <tr class="excel-row">
+              <td class="col-no text-center text-secondary fw-semibold">
+                {{ i + 1 }}
+              </td>
+
+              <!-- KEEP student column like your first HTML -->
+              <td class="col-student">
+                <div class="student-name-primary kh-font">{{ student.studentname_kh }}</div>
+                <div class="student-name-secondary">{{ student.studentname_en }}</div>
+              </td>
+
+              <td class="col-sex text-center">
+                <span class="excel-sex-badge" [class.male]="student.gender === 'M'"
+                  [class.female]="student.gender === 'F'">
+                  {{ student.gender }}
+                </span>
+              </td>
+
+              <!-- Attendance cells -->
+              @for (a of student.attendance; track $index) {
+              <td class="excel-cell-td" [class.sep-right]="(($index + 1) % 3) === 0">
+                <button type="button" class="excel-cell-btn" [class.isDisable]="isCellDisabled($index, a.attendance_id)"
+                  (dblclick)="isAllowUpdate(a.attendance_id, $index)? 
+                openUpdateModal(a.attendance_id, a.status):''"
+                  [class.isAllowUpdate]="isAllowUpdate(a.attendance_id, $index)" (click)="isCellDisabled($index, a.attendance_id)? '': 
+                  toggleAttendance($index, a.status, student.student_id || 0, a.subject_id)">
+                  @if (a.status === 1) {
+                  <i class="bi bi-check2 excel-mark excel-mark--p"></i>
+                  } @else if (a.status === 2) {
+                  <i class="bi bi-x excel-mark excel-mark--a"></i>
+                  } @else if (a.status === 3) {
+                  <span class="excel-text excel-text--ap">AP</span>
+                  } @else if (a.status === 4) {
+                  <span class="excel-text excel-text--l">L</span>
+                  }
+                </button>
+              </td>
+              }
+
+              <!-- STATIC TOTALS (no logic, no objects) -->
+              <td class="excel-total-td excel-mark--p">{{student.total_p}}</td>
+              <td class="excel-total-td excel-mark--a">{{student.total_a}}</td>
+              <td class="excel-total-td excel-text--ap">{{student.total_ap}}</td>
+              <td class="excel-total-td excel-text--l">{{student.total_l}}</td>
+              <td class="excel-total-td excel-total-final">{{student.total}}</td>
+            </tr>
+            } @empty {
+            <tr>
+              <td [attr.colspan]="(weeklySchedule().length * 3) + 8" class="text-center py-5 text-secondary">
+                <i class="bi bi-people fs-1 opacity-25 d-block mb-2"></i>
+                <div class="fw-semibold">No students found in the database for this class</div>
+              </td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Save button and Rules -->
+      <div class="mt-2 d-flex justify-content-between">
+        <button class="btn excel-btn excel-btn-save" [disabled]="attendances.length === 0" (click)="saveAttendance()">
+          @if(!loadingSave()) {
+          <i class="bi bi-cloud-check-fill me-1"></i>
+          Save All
+          } @else {
+          <app-text-loading></app-text-loading>
+          }
+        </button>
+
+        <!-- LEGEND + STATUS RULES (Excel style) -->
+        <div class="excel-legend">
+          <div class="excel-legend-row">
+            <div class="excel-legend-item">
+              <i class="bi bi-check2 legend-icon legend-p"></i>
+              <span class="legend-text"><b>P</b> = Present</span>
+            </div>
+
+            <div class="excel-legend-item">
+              <i class="bi bi-x legend-icon legend-a"></i>
+              <span class="legend-text"><b>A</b> = Absent</span>
+            </div>
+
+            <div class="excel-legend-item">
+              <span class="legend-chip legend-ap">AP</span>
+              <span class="legend-text"><b>AP</b> = Permission</span>
+            </div>
+
+            <div class="excel-legend-item">
+              <span class="legend-chip legend-l">L</span>
+              <span class="legend-text"><b>L</b> = Late</span>
+            </div>
+          </div>
+
+          <div class="excel-legend-row excel-legend-cycle">
+            <span class="cycle-label">Click cycle:</span>
+            <span class="cycle-seq">
+              P → A → AP → L
+            </span>
+          </div>
         </div>
       </div>
-      <span class="view-badge">Weekly View</span>
+
+      }
     </div>
-
-    @if (loading()) {
-    <div class="loading-state">
-      <div class="spinner"></div>
-      <p>Fetching class records...</p>
-    </div>
-    } @else {
-    <div class="table-wrapper">
-      <table class="attendance-table">
-        <thead>
-          <!-- Row 1: Days -->
-          <tr>
-            <th rowspan="2" class="fixed-col col-number">No</th>
-            <th rowspan="2" class="fixed-col col-student">Student Name</th>
-            <th rowspan="2" class="fixed-col col-gender">Sex</th>
-
-            @for (day of weeklySchedule(); track day.day; let i = $index) {
-            <th colspan="3" class="day-header">
-              <div class="day-name">{{ day.day }}</div>
-              <div class="day-date">{{ attendanceDates()[i] | date: 'dd/MM/yyyy' }}</div>
-            </th>
-            }
-            <th rowspan="2" class="col-total">Total</th>
-          </tr>
-          <!-- Row 2: Subjects -->
-          <tr style="height: 60px;">
-            @for (day of weeklySchedule(); track day.day) {
-            @for (slot of day.slots; track slot.id; let slotIndex = $index) {
-            <th class="subject-header" [class.day-separator]="slotIndex === 2">
-              <p class="subject-text">
-                {{ slot.subject_name }}
-              </p>
-            </th>
-            }
-            }
-          </tr>
-        </thead>
-        <tbody>
-          @for (student of studentAttendances(); track student.student_id; let i = $index) {
-          <tr class="student-row">
-            <td class="student-number">{{ i + 1 }}</td>
-            <td class="student-name-cell">
-              <div class="student-name-primary kh-font">{{ student.studentname_kh }}</div>
-              <div class="student-name-secondary">{{ student.studentname_en }}</div>
-            </td>
-            <td class="student-gender">
-              <span class="gender-badge" [class.badge-male]="student.gender === 'M'"
-                [class.badge-female]="student.gender === 'F'">
-                {{ student.gender }}
-              </span>
-            </td>
-
-            @for(a of student.attendance; track $index) {
-              <td class="attendance-cell-wrapper" [class.day-separator]="($index+1) % 3 === 0">
-              <button class="attendance-cell" [disabled]="a.attendance_id===0 ? false : true"
-                (click)="toggleAttendance($index, a.status, student.student_id || 0, a.subject_id)">
-                @if (a.status === 1) {
-                <i class="bi bi-check-lg fs-4 status status-present"></i>
-                } @else if (a.status === 2) {
-                 <span class="status-absent status fs-5 fw-semibold">A</span>
-                } @else if(a.status === 3) {
-                  <span class="text-warning status fs-5 fw-semibold">AP</span>
-                }@else if (a.status === 4) {
-                  <span class="text-info status fs-5 fw-semibold">L</span>
-                }@else {
-                <span class="status-empty">•</span>
-                }
-              </button>
-            </td>
-            }
-
-            <!-- @for (day of weeklySchedule(); track day.day; let dIndex = $index) {
-            @for (slot of day.slots; track slot.subject_id; let slotIndex = $index) {
-            <td class="attendance-cell-wrapper" [class.day-separator]="slotIndex === 2">
-              <div class="attendance-cell"
-                (click)="toggleAttendance(student.student_id || 0, attendanceDates()[dIndex], slot.subject_id)">
-                @if (getAttendanceStatus(student.student_id || 0, attendanceDates()[dIndex], slot.subject_id) === 'present') {
-                <i class="bi bi-check-lg fs-3 status-present"></i>
-                } @else if (getAttendanceStatus(student.student_id || 0, attendanceDates()[dIndex], slot.subject_id) === 'absent') {
-                 <span class="status-absent fs-3 fw-semibold">A</span>
-                } @else {
-                <span class="status-empty">•</span>
-                }
-              </div>
-            </td>
-            }
-            } -->
-
-            <td class="total-cell">{{ student.attendance.length }}</td>
-          </tr>
-          } @empty {
-          <tr>
-            <td [attr.colspan]="(weeklySchedule.length * 3) + 4" class="empty-state">
-              <div class="empty-content">
-                <i class="bi bi-people"></i>
-                <p>No students found in the database for this class</p>
-              </div>
-            </td>
-          </tr>
-          }
-        </tbody>
-      </table>
-    </div>
-
-    <!-- STATISTICS FOOTER -->
-    <div class="stats-footer">
-      <div class="stat-item">
-        <div class="stat-label">Total Students</div>
-        <div class="stat-value">{{ studentAttendances().length }}</div>
-      </div>
-      <div class="stat-item stat-present">
-        <div class="stat-label">Present</div>
-        <div class="stat-value">{{ studentAttendances().length }}</div>
-      </div>
-      <div class="stat-item stat-absent">
-        <div class="stat-label">Absent</div>
-        <div class="stat-value">{{ studentAttendances().length }}</div>
-      </div>
-      <div class="stat-item stat-rate">
-        <div class="stat-label">Attendance Rate</div>
-        <div class="stat-value">{{ studentAttendances().length }}%</div>
-      </div>
-    </div>
-    }
   </div>
   } @else {
-  <!-- EMPTY STATE -->
-  <div class="empty-state-card glass-card">
-    <div class="empty-state-content">
-      <i class="bi bi-calendar-range"></i>
-      <h4>Weekly Schedule View</h4>
-      <p>Select a class to view the full weekly schedule (Mon-Sat)</p>
+  <div class="card text-center py-5 excel-empty-box">
+    <div class="excel-empty-icon">
+      <i class="bi bi-door-open-fill"></i>
+    </div>
+
+    <div class="excel-empty-title mt-2">No class selected</div>
+    <div class="text-secondary mt-1">Please choose a class to view the attendance sheet.</div>
+  </div>
+
+  }
+
+  <!-- Modal -->
+  <div class="modal fade" #statusModal tabindex="-1" aria-labelledby="statusModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+      <div class="modal-content excel-modal">
+
+        <!-- Header -->
+        <div class="modal-header excel-modal-header">
+          <div class="d-flex align-items-center gap-2">
+            <div class="excel-modal-icon">
+              <i class="bi bi-pencil-square"></i>
+            </div>
+            <div>
+              <div class="excel-modal-title" id="statusModalLabel">Update Status</div>
+              <div class="excel-modal-subtitle">Select one option</div>
+            </div>
+          </div>
+
+          <button type="button" class="btn-close excel-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <!-- Body -->
+        <div class="modal-body excel-modal-body">
+
+          <!-- Status grid (cell buttons) -->
+          <div class="excel-status-grid">
+            <button type="button" class="excel-status-cell is-p" (click)="pickStatus(1)"
+              [class.activeStatus]="updateAttendanceStatus===1">
+              <i class="bi bi-check2"></i>
+              <span>Present</span>
+            </button>
+
+            <button type="button" class="excel-status-cell is-a" (click)="pickStatus(2)"
+              [class.activeStatus]="updateAttendanceStatus===2">
+              <i class="bi bi-x"></i>
+              <span>Absent</span>
+            </button>
+
+            <button type="button" class="excel-status-cell is-ap" (click)="pickStatus(3)"
+              [class.activeStatus]="updateAttendanceStatus===3">
+              <i class="bi bi-shield-check"></i>
+              <span>Permission</span>
+            </button>
+
+            <button type="button" class="excel-status-cell is-l" (click)="pickStatus(4)"
+              [class.activeStatus]="updateAttendanceStatus===4">
+              <i class="bi bi-clock"></i>
+              <span>Late</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="modal-footer excel-modal-footer">
+          <button type="button" class="btn excel-btn-lite" data-bs-dismiss="modal" (click)="closeUpdateModal()">
+            Cancel
+          </button>
+          <button type="button" class="btn excel-btn-save" (click)="updateAttendance()">
+            @if(!loadingUpdate()) {
+            <i class="bi bi-check2-circle me-1"></i>
+            Save
+            } @else {
+            <app-text-loading></app-text-loading>
+            }
+          </button>
+        </div>
+
+      </div>
     </div>
   </div>
-  }
+
 </div>

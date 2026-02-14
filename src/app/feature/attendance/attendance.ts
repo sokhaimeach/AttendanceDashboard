@@ -1,368 +1,420 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, signal, computed, inject } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  OnInit,
+  ViewChild,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { StudentInterface } from '../../models/student.model';
-import { Studentservice } from '../../services/student/studentservice';
-import { Attendanceservice } from '../../services/attendance/attendanceservice';
+import { Modal } from 'bootstrap';
+
+import { ClassInterface } from '../../models/class.model';
 import {
   AttendanceReportInterface,
   CreateAttendanceInterface,
 } from '../../models/attendance.model';
-import { ClassInterface } from '../../models/class.model';
+
 import { Classservice } from '../../services/class/classservice';
-
-interface Student {
-  studentid?: number;
-  studentname_kh: string;
-  studentname_eng: string;
-  gender: string;
-  classid: number;
-  Class?: {
-    classname: string;
-  };
-}
-
-interface Teacher {
-  teacherid?: number;
-  teachername_kh: string;
-  teachername_en: string;
-  gender: 'M' | 'F';
-  phone: string;
-  email: string;
-  subject?: string;
-}
+import { Attendanceservice } from '../../services/attendance/attendanceservice';
+import { TextLoading } from '../../shared/text-loading/text-loading';
 
 @Component({
   selector: 'app-attendance',
-  imports: [CommonModule, FormsModule],
+  standalone: true,
+  imports: [CommonModule, FormsModule, TextLoading],
   templateUrl: './attendance.html',
   styleUrl: './attendance.css',
 })
-export class Attendance implements OnInit {
-  // inject all need service
-  private classservice = inject(Classservice);
-  private attendanceservice = inject(Attendanceservice);
-  private studentservice = inject(Studentservice);
-  // variables
-  classes = signal<ClassInterface[]>([]);
-  students = signal<StudentInterface[]>([]);
-  studentAttendances = signal<AttendanceReportInterface[]>([]);
+export class Attendance implements OnInit, AfterViewInit {
+  // services
+  private readonly classService = inject(Classservice);
+  private readonly attendanceService = inject(Attendanceservice);
+
+  // state
+  readonly classes = signal<ClassInterface[]>([]);
+  readonly weeklySchedule = signal<any[]>([]);
+  readonly studentAttendances = signal<AttendanceReportInterface[]>([]);
+  readonly loading = signal<boolean>(false);
+
+  readonly selectedClassId = signal<number>(0);
+  readonly searchQuery = '';
+  readonly selectedStatus = 0;
+
+  // store week start as yyyy-mm-dd (same as <input type="date">)
+  readonly selectedWeekStart = signal<string>(this.getCurrentWeekStart());
+
+  // track changes to save
+  private readonly TEACHER_ID = 1;
   attendances: CreateAttendanceInterface[] = [];
-  attIndex: number = -1;
-  // Weekly Schedule Data
-  weeklySchedule = signal<any[]>([]);
-  // Week selection
-  selectedWeekStart = signal<string>(this.getCurrentWeekStart());
-  attendanceDates = computed(() =>
+  private lastEditedIndex = -1;
+
+  // derived
+  readonly attendanceDates = computed(() =>
     this.generateWeekDates(this.selectedWeekStart()),
   );
-  selectedClassId = signal<number>(0);
-  // Removed selectedSubjectId as we now show all subjects
-  loading = signal<boolean>(false);
-  // Key format: `${studentId}_${date}_${subjectId}`
-  // attendanceMap = signal<Map<string, string>>(new Map());
-  // attendanceStats = computed(() => {
-  //   const map = this.attendanceMap();
-  //   let present = 0;
-  //   map.forEach((status: string) => {
-  //     if (status === 'present') present++;
-  //   });
-  //   // Calculate total possible slots based on schedule (6 days * 3 slots = 18 slots per student)
-  //   const totalPossible = this.students().length * 18;
-  //   return {
-  //     totalStudents: this.students().length,
-  //     present: present,
-  //     absent: totalPossible - present,
-  //     percentage:
-  //       totalPossible > 0 ? ((present / totalPossible) * 100).toFixed(1) : '0',
-  //   };
-  // });
-  ngOnInit() {
+  readonly todayStr = computed(() => this.formatDateLocal(new Date()));
+
+  readonly selectedClassName = computed(() => {
+    const cls = this.classes().find(
+      (c) => c.class_id === this.selectedClassId(),
+    );
+    return cls?.class_name ?? '';
+  });
+
+  // you can wire this later from API / auth user
+  readonly selectedTeacherName = computed(() => '—');
+
+  // check all varaible
+  isCheckAll: boolean = false;
+
+  // Modal varaible
+  @ViewChild('statusModal') statusModalEl!: ElementRef<HTMLElement>;
+  statusModal?: Modal;
+
+  // update variable
+  selectUpdateAttendanceId: number = 0;
+  updateAttendanceStatus: number = 0;
+
+  // loading variable
+  loadingExport = signal<boolean>(false);
+  loadingSave = signal<boolean>(false);
+  loadingUpdate = signal<boolean>(false);
+
+  ngOnInit(): void {
     this.loadClasses();
     this.loadSchedule();
-    // Subjects are now static from WEEKLY_SCHEDULE, no need to load from API for selection
   }
-  // Get the Monday of the current week
+
+  ngAfterViewInit() {
+    // create modal instance once
+    this.statusModal = new Modal(this.statusModalEl.nativeElement, {
+      backdrop: 'static', // optional: prevent click outside close
+      keyboard: true,
+    });
+  }
+
+  // ---------------------------
+  // Week helpers (local-safe)
+  // ---------------------------
+
+  private parseDateLocal(dateStr: string): Date {
+    // avoid UTC shift for YYYY-MM-DD
+    return new Date(`${dateStr}T00:00:00`);
+  }
+
+  private formatDateLocal(date: Date): string {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+
+  // Monday of current week
   getCurrentWeekStart(): string {
     const today = new Date();
-    const day = today.getDay();
-    const diff = day === 0 ? -6 : 1 - day; // Adjust to Monday
+    const day = today.getDay(); // 0=Sun..6=Sat
+    const diff = day === 0 ? -6 : 1 - day; // move to Monday
     const monday = new Date(today);
     monday.setDate(today.getDate() + diff);
-    return this.formatDate(monday);
+    return this.formatDateLocal(monday);
   }
-  // Generate 6 consecutive dates starting from the selected week start
+
   generateWeekDates(startDate: string): string[] {
+    const start = this.parseDateLocal(startDate);
     const dates: string[] = [];
-    const start = new Date(startDate);
     for (let i = 0; i < 6; i++) {
-      const date = new Date(start);
-      date.setDate(start.getDate() + i);
-      dates.push(this.formatDate(date));
+      const d = new Date(start);
+      d.setDate(start.getDate() + i);
+      dates.push(this.formatDateLocal(d));
     }
     return dates;
   }
-  // Format date as YYYY-MM-DD
-  formatDate(date: Date): string {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  }
-  // Navigate to previous week
-  previousWeek() {
-    const currentStart = new Date(this.selectedWeekStart());
-    const day = (currentStart.getUTCDay() + 6) % 7;
-    currentStart.setUTCDate(currentStart.getUTCDate() - day - 7);
-    currentStart.setUTCHours(0, 0, 0, 0);
-    this.selectedWeekStart.set(this.formatDate(currentStart));
+
+  previousWeek(): void {
+    const current = this.parseDateLocal(this.selectedWeekStart());
+    current.setDate(current.getDate() - 7);
+    this.selectedWeekStart.set(this.formatDateLocal(current));
     this.reloadAttendanceForNewWeek();
   }
-  // Navigate to next week
-  nextWeek() {
-    const currentStart = new Date(this.selectedWeekStart());
-    currentStart.setUTCHours(0, 0, 0, 0);
-    const day = (currentStart.getUTCDay() + 6) % 7;
-    currentStart.setUTCDate(currentStart.getUTCDate() - day + 7);
-    this.selectedWeekStart.set(this.formatDate(currentStart));
+
+  nextWeek(): void {
+    const current = this.parseDateLocal(this.selectedWeekStart());
+    current.setDate(current.getDate() + 7);
+    this.selectedWeekStart.set(this.formatDateLocal(current));
     this.reloadAttendanceForNewWeek();
   }
-  // Handle date input change
-  onWeekStartChange(newDate: string) {
+
+  onWeekStartChange(newDate: string): void {
     this.selectedWeekStart.set(newDate);
     this.reloadAttendanceForNewWeek();
   }
-  // Reload attendance data when week changes
-  reloadAttendanceForNewWeek() {
-    const classId = Number(this.selectedClassId());
-    if (classId > 0) {
-      this.onClassChange();
-    }
+
+  jumpToCurrentWeek(): void {
+    this.selectedWeekStart.set(this.getCurrentWeekStart());
+    this.reloadAttendanceForNewWeek();
   }
 
-  // load schedule
-  loadSchedule() {
-    this.attendanceservice.getSchedule().subscribe({
-      next: (res) => {
-        this.weeklySchedule.set(res.data);
-        console.log(this.weeklySchedule());
-      },
-      error: (err) => {
-        console.error('Error get schedule');
-      },
+  private reloadAttendanceForNewWeek(): void {
+    if (this.selectedClassId() > 0) this.onClassChange();
+  }
+
+  // ---------------------------
+  // API loads
+  // ---------------------------
+
+  private loadSchedule(): void {
+    this.attendanceService.getSchedule().subscribe({
+      next: (res) => this.weeklySchedule.set(res.data),
+      error: () => console.error('Error get schedule'),
     });
   }
 
-  loadClasses() {
-    this.classservice.getAllClasses().subscribe({
-      next: (res) => {
-        this.classes.set(res.data);
-      }
+  private loadClasses(): void {
+    this.classService.getAllClasses().subscribe({
+      next: (res) => this.classes.set(res.data),
+      error: () => console.error('Error load classes'),
     });
+
+    this.selectedClassId.set(Number(sessionStorage.getItem('classId')) || 0);
+    if (this.selectedClassId()) this.onClassChange();
   }
 
-  onClassChange() {
-    const classId = Number(this.selectedClassId());
-    if (classId > 0) {
-      this.loading.set(true);
+  onClassChange(): void {
+    const classId = this.selectedClassId();
+    if (!classId) return;
 
-      // this.studentservice
-      //   .getStudentsByClassId(classId, '', '', '', 0)
-      //   .subscribe({
-      //     next: (res) => {
-      //       this.students.set(res.data.data);
-      //       this.loading.set(false);
-      //     },
-      //     error: (res) => {
-      //       console.error('Error fetch student ', res.error);
-      //     },
-      //   });
+    sessionStorage.setItem('classId', String(this.selectedClassId()));
 
-      this.attendanceservice.getAttendanceReportByClass(this.selectedClassId(), this.selectedWeekStart()).subscribe({
+    this.loading.set(true);
+    this.attendances = [];
+    this.lastEditedIndex = -1;
+
+    this.attendanceService
+      .getAttendanceReportByClass(
+        classId,
+        this.selectedWeekStart(),
+        this.searchQuery,
+        this.selectedStatus,
+      )
+      .subscribe({
         next: (res) => {
           this.studentAttendances.set(res.data);
-          console.log(this.studentAttendances());
           this.loading.set(false);
         },
+        error: () => {
+          this.loading.set(false);
+          console.error('Error load attendance report');
+        },
       });
+  }
 
-      // Load existing attendance for this class (all subjects)
-      this.loadExistingAttendance(classId);
-      // this.students.set([
-      //   {
-      //     studentid: 1,
-      //     studentname_kh: "មៀច សុខហៃ",
-      //     studentname_eng : "Meach Sokhai",
-      //     gender: "M",
-      //     classid: 1,
-      //     Class: {
-      //       classname: "SV23"
-      //     }
-      //   },
-      //   {
-      //     studentid: 2,
-      //     studentname_kh: "មៀច សុខហៃ",
-      //     studentname_eng : "Meach Sokhai",
-      //     gender: "M",
-      //     classid: 1,
-      //     Class: {
-      //       classname: "SV23"
-      //     }
-      //   },
-      //   {
-      //     studentid: 3,
-      //     studentname_kh: "មៀច សុខហៃ",
-      //     studentname_eng : "Meach Sokhai",
-      //     gender: "M",
-      //     classid: 1,
-      //     Class: {
-      //       classname: "SV23"
-      //     }
-      //   },
-      //   {
-      //     studentid: 4,
-      //     studentname_kh: "មៀច សុខហៃ",
-      //     studentname_eng : "Meach Sokhai",
-      //     gender: "M",
-      //     classid: 1,
-      //     Class: {
-      //       classname: "SV23"
-      //     }
-      //   },
-      // ]);
-      // this.http
-      //   .get<any[]>(`http://localhost:3000/api/students/class/${classId}`)
-      //   .subscribe({
-      //     next: (res) => {
-      //       this.students.set(res);
-      //       this.loading.set(false);
-      //     },
-      //     error: (err) => {
-      //       console.error('Error loading students:', err);
-      //       this.loading.set(false);
-      //     },
-      //   });
+  // ---------------------------
+  // Click rules (ONLY today)
+  // ---------------------------
+
+  isTodayDate(dateStr: string): boolean {
+    return dateStr === this.todayStr();
+  }
+
+  private getDateFromCellIndex(cellIndex: number): string {
+    // each day has 3 slots => 0..2 = day0, 3..5 = day1, ...
+    const dayIndex = Math.floor(cellIndex / 3);
+    return this.attendanceDates()[dayIndex] ?? '';
+  }
+
+  isCellDisabled(cellIndex: number, attendanceId: number): boolean {
+    const cellDate = this.getDateFromCellIndex(cellIndex);
+
+    // rule:
+    // 1) disable if NOT today
+    // 2) also disable if attendance already saved (attendance_id != 0) (same as your old logic)
+    if (!this.isTodayDate(cellDate)) return true;
+    if (attendanceId !== 0) return true;
+
+    return false;
+  }
+
+  isToday() {
+    const current = this.parseDateLocal(this.selectedWeekStart());
+    const today = new Date();
+    return (
+      today.getDate() > current.getDate() &&
+      today.getDate() < current.getDate() + 7
+    );
+  }
+
+  // -------------------
+  // Check all
+  // -------------------
+
+  allowCheckAll() {
+    if (this.isCheckAll) {
+      this.fillBlankStatus(1);
+
+      const student = this.studentAttendances().map(
+        (s) => s.attendance[this.lastEditedIndex],
+      );
+
+      student.forEach((s) => (s.status = 1));
     }
   }
 
-  loadExistingAttendance(classId: number) {
-    // We want to load attendance for ALL subjects for this class
-    // The service might need to support fetching without subjectId or we fetch specific subjects
-    // For now, let's assume getAttendanceData can accept 0 or null for subjectId to get all
-    // Or we iterate through the schedule. A better approach for the backend would be to allow fetching by classId only.
-    // Since we updated the backend to allow optional subjectId, we can just pass classId.
-    // Pass 0 or any dummy value if subjectId is optional in the service method signature but handled in backend
-    // Checking service... Service expects subjectId. We might need to update service or pass 0.
-    // Let's assume we update service or logic.
-    // Based on previous step, getAllAttendance in backend handles optional subjectId.
-    // But frontend service getAttendanceData takes subjectId as mandatory number?
-    // Let's check service in a moment. For now, we will assume we can pass 0 to fetch all.
-    const subjectId = 0; // Fetch all for class
-    // this.attendanceService
-    //   .getAttendanceData(classId, subjectId)
-    //   .subscribe((res) => {
-    //     const newMap = new Map();
-    //     res.forEach((rec: Attendance) => {
-    //       // Key now includes subjectId to distinguish slots
-    //       newMap.set(
-    //         `${rec.student_id}_${rec.attendance_date}_${rec.subject_id}`,
-    //         rec.status,
-    //       );
-    //     });
-    //     this.attendanceMap.set(newMap);
-    //   });
+  // ---------------------------
+  // search
+  search() {
+    this.onClassChange();
   }
+
+  // ---------------------------
+  // Attendance edit/save (same logic)
+  // ---------------------------
+
   toggleAttendance(
     index: number,
     status: number,
     studentId: number,
     subjectId: number,
-  ) {
-    status = status < 4 ? status + 1 : 0;
-    const att = this.studentAttendances().find(
-      (sa) => sa.student_id === studentId,
-    )?.attendance[index];
-    if (!att) return;
-    att.status = status;
-    this.attIndex = index;
+  ): void {
+    // cycle: 0 -> 1 -> 2 -> 3 -> 4
+    const nextStatus = status < 4 ? status + 1 : 1;
 
+    const student = this.studentAttendances().find(
+      (s) => s.student_id === studentId,
+    );
+    const cell = student?.attendance[index];
+    if (!cell) return;
+
+    cell.status = nextStatus;
+    this.lastEditedIndex = index;
+
+    // keep your save payload logic: update if exists else push
     const existing = this.attendances.find(
       (a) => a.student_id === studentId && a.subject_id === subjectId,
     );
+
     if (existing) {
-      existing.status = status;
+      existing.status = nextStatus;
     } else {
       this.attendances.push({
         student_id: studentId,
         subject_id: subjectId,
-        teacher_id: 1,
-        status: status,
+        teacher_id: this.TEACHER_ID,
+        status: nextStatus,
       });
     }
+
+    this.allowCheckAll();
   }
-  saveAttendance() {
-    this.fillBlankStatus();
-    
-    this.attendanceservice.createManyAttendances(this.attendances).subscribe({
-      next: (res) => {
+
+  saveAttendance(): void {
+    this.fillBlankStatus(2);
+    this.loadingSave.set(true);
+
+    if (this.attendances.length === 0) return;
+
+    this.attendanceService.createManyAttendances(this.attendances).subscribe({
+      next: () => {
+        this.loadingSave.set(false);
         this.onClassChange();
-      } 
-    })
-  }
-
-  // fill blank status
-  fillBlankStatus() {
-    const blankAtts = this.studentAttendances()
-    .filter(s => s.attendance[this.attIndex].status === 0)
-    .flatMap(sa => {
-      const att = sa.attendance[this.attIndex];
-      return {
-        student_id: sa.student_id,
-        subject_id: att.subject_id,
-        teacher_id: 1,
-        status: 2,
-      }
-    });
-
-    blankAtts.forEach(b => {
-      this.attendances.push(b);
+      },
+      error: () => console.error('Error save attendance'),
     });
   }
-  getSelectedClassName() {
-    return (
-      this.classes().find((c: any) => c.class_id == this.selectedClassId())
-        ?.class_name || ''
-    );
+
+  // same idea as your old code, but safer + avoids pushing duplicates
+  private fillBlankStatus(status: number): void {
+    if (this.lastEditedIndex < 0) return;
+
+    const colIndex = this.lastEditedIndex;
+
+    const blankRows = this.studentAttendances()
+      .filter((s) => (s.attendance[colIndex]?.status ?? 0) === 0)
+      .map((s) => {
+        const cell = s.attendance[colIndex];
+        return {
+          student_id: s.student_id,
+          subject_id: cell.subject_id,
+          teacher_id: this.TEACHER_ID,
+          status: status, // absent
+        } as CreateAttendanceInterface;
+      });
+
+    for (const b of blankRows) {
+      const exists = this.attendances.some(
+        (a) => a.student_id === b.student_id && a.subject_id === b.subject_id,
+      );
+      if (!exists) this.attendances.push(b);
+    }
   }
-  getSelectedTeacherName() {
-    // return (
-    //   this.classes().find((c: any) => c.classid == this.selectedClassId())
-    //     ?.Teacher?.teachername_en || 'Unknown Teacher'
-    // );
+
+  // ---------------------------
+  // Export
+  // ---------------------------
+
+  exportAttendance(): void {
+    if (!this.selectedClassId()) return;
+
+    this.loadingExport.set(true);
+
+    this.attendanceService
+      .downloadAttendance(this.selectedClassId())
+      .subscribe((blob) => {
+        this.loadingExport.set(false);
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'attendance-report.xlsx';
+        a.click();
+        window.URL.revokeObjectURL(url);
+      });
   }
 
-  
-  formatDateHeader(dateStr: string): string {
-    const date = new Date(dateStr);
-    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    const dayName = days[date.getDay()];
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${dayName} ${month}/${day}`;
+  // ---------------
+  // Modal
+  // ---------------
+  isAllowUpdate(attendanceId: number, cellIndex: number): boolean {
+    const cellDate = this.getDateFromCellIndex(cellIndex);
+
+    return this.isTodayDate(cellDate) && attendanceId ? true : false;
   }
 
-  async exportAttendance() {
-    this.attendanceservice
-    .downloadAttendance(this.selectedClassId())
-    .subscribe((blob) => {
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
+  openUpdateModal(attendanceId: number, status: number) {
+    this.selectUpdateAttendanceId = attendanceId;
+    this.updateAttendanceStatus = status;
+    this.statusModal?.show();
+  }
 
-      a.href = url;
-      a.download = 'attendance-report.xlsx';
-      a.click();
+  closeUpdateModal() {
+    this.statusModal?.hide();
+  }
 
-      window.URL.revokeObjectURL(url);
-    });
+  pickStatus(status: number) {
+    this.updateAttendanceStatus = status;
+  }
+
+  updateAttendance() {
+    if (!this.updateAttendanceStatus) return;
+    this.loadingUpdate.set(true);
+
+    this.attendanceService
+      .updateAttendanceStatus(
+        this.selectUpdateAttendanceId,
+        this.updateAttendanceStatus,
+      )
+      .subscribe({
+        next: (res) => {
+          this.onClassChange();
+          this.loadingUpdate.set(false);
+          this.closeUpdateModal();
+        },
+        error: (err) => {
+          this.loadingUpdate.set(false);
+          console.error('error update attendance ', err.error);
+        }
+      });
   }
 }
