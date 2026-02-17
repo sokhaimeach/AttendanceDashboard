@@ -1,0 +1,535 @@
+/* page */
+.student-wrap { background: #f6f7fb; }
+
+/* ######################## */
+/* EXCEL STYLE HEADER SHEET */
+/* ######################## */
+
+.excel-header-sheet {
+  background: #ffffff;
+  border: 1px solid rgba(0,0,0,0.25);
+  border-radius: 6px;          /* Excel is slightly rounded on web */
+  overflow: hidden;
+}
+
+/* top row */
+.excel-header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  background: #e7e6e6;         /* Excel header gray */
+}
+
+/* icon cell (like a sheet cell) */
+.excel-icon-cell {
+  width: 40px;
+  height: 40px;
+  border: 1px solid rgba(0,0,0,0.25);
+  background: #ffffff;
+  display: grid;
+  place-items: center;
+  border-radius: 4px;
+  color: #107c41;       
+  font-size: 18px;
+}
+
+.excel-head-title {
+  text-transform: uppercase;
+  font-weight: 700;
+  font-size: 16px;
+  color: #111;
+  line-height: 1.1;
+}
+
+.excel-head-subtitle {
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+  margin-top: 2px;
+}
+
+/* divider line like Excel row border */
+.excel-divider {
+  height: 1px;
+  background: rgba(0,0,0,0.25);
+}
+
+/* action buttons: still clean, but excel-ish */
+.excel-btn {
+  height: 40px;
+  border-radius: 6px;
+  font-weight: 600;
+  padding: 0 14px;
+  font-size: 14px;
+  border: 1px solid rgba(0,0,0,0.25);
+}
+
+.excel-btn-export {
+  font-size: 14px;
+  background: #ffffff;
+  color: #111;
+}
+.excel-btn-export:hover { background: #f3f3f3; }
+
+/* label */
+.excel-filter-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #111;
+  margin-bottom: 6px;
+}
+.excel-filter-label i {
+  color: #107c41;
+}
+
+
+/* control cell look */
+.excel-control {
+  width: 100%;
+  border: 1px solid rgba(0,0,0,0.25);
+  background: #ffffff;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.excel-control:focus {
+  border-color: rgba(16,124,65,0.6);
+  box-shadow: 0 0 0 3px rgba(16,124,65,0.12);
+}
+
+
+
+/* mini icon cell */
+.excel-icon-cell--mini{
+  width: 32px;
+  height: 32px;
+  font-size: 14px;
+}
+
+/* btn variants */
+.excel-btn-danger{
+  background: #dc2626;
+  color: #fff;
+  border-color: rgba(0,0,0,0.25);
+}
+.excel-btn-danger:hover{ filter: brightness(0.95); color:#fff; }
+
+
+
+/* input group excel-ish */
+.excel-input-group{
+  border: 1px solid rgba(0,0,0,0.25);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.excel-input-bootstrap{
+  border: 0 !important;
+  box-shadow: none !important;
+  font-size: 14px;
+  font-family: var(--kh-body);
+}
+.excel-input-group .input-group-text{
+  border: 0;
+}
+.excel-input-group .btn{
+  border: 0;
+}
+
+
+/* ###################### */
+/* Report bar wrapper */
+/* ###################### */
+.excel-reportbar{
+  border-bottom: 1px solid rgba(0,0,0,0.25);
+  border-top: 1px solid rgba(0,0,0,0.25);
+  background: #ffffff;
+}
+
+/* KPI card look (Excel-ish cell but modern) */
+.excel-kpi{
+  border: 1px solid rgba(0,0,0,0.18);
+  border-radius: 6px;
+  background: #fff;
+  padding: 8px 10px;
+  height: 85px;
+  /* height: 100%; */
+}
+
+.excel-kpi-top{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  font-size:11px;
+  font-weight:900;
+  color:#374151;
+}
+.excel-kpi-top i{ color:#107c41; }
+
+.excel-kpi-val{
+  font-size: 30px;
+  font-weight:950;
+  color:#111;
+  line-height:1;
+  margin-top:3px;
+}
+
+.excel-kpi-sub{
+  margin-top:3px;
+  font-size:11px;
+  font-weight:800;
+  color:#6b7280;
+}
+
+/* Insight box */
+.excel-insight{
+  border: 1px solid rgba(0,0,0,0.18);
+  border-radius: 6px;
+  background: #f8fafc;
+  padding: 8px 10px;
+  height: 85px;
+}
+
+.excel-insight-top{
+  font-size:11px;
+  font-weight:950;
+  color:#111;
+  display:flex;
+  align-items:center;
+}
+.excel-insight-top i{ color:#107c41; }
+
+.excel-insight-text{
+  margin-top:4px;
+  font-size:11px;
+  font-weight:800;
+  color:#374151;
+}
+
+/* progress */
+.excel-progress{
+  height: 8px;
+  border-radius: 999px;
+  background: #e5e7eb;
+  overflow:hidden;
+}
+.excel-progress-boys{ background: #2563eb; }
+.excel-progress-girls{ background: #dc2626; }
+
+/* legend dots */
+.excel-insight-legend{
+  display:flex;
+  gap:12px;
+  font-size:10px;
+  font-weight:900;
+  color:#6b7280;
+}
+.dot{
+  display:inline-block;
+  width:8px;
+  height:8px;
+  border-radius:999px;
+  margin-right:6px;
+}
+.dot.boys{ background:#2563eb; }
+.dot.girls{ background:#dc2626; }
+
+/* ################
+START TABLE DESIGN
+############### */
+
+
+/* avatar box */
+.excel-avatar{
+  width: 30px;
+  height: 30px;
+  border: 1px solid rgba(0,0,0,0.25);
+  border-radius: 4px;
+  display: grid;
+  place-items: center;
+  background: #eaf3ec;
+  color: #107c41;
+  flex: 0 0 auto;
+}
+
+/* table row height */
+.student-excel-table .excel-row td{
+  /* height: 40px !important; */
+  vertical-align: middle;
+}
+
+/* Header like excel */
+.excel-table thead th {
+  background: #e7e6e6;
+  color: #111;
+  border: 1px solid rgba(0,0,0,0.25);
+  padding: 7px 6px;
+  text-align: center;
+  vertical-align: middle;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.col-no {
+    width: 30px;
+}
+
+.text-truncate {
+    font-weight: 550;
+    font-size: 14px;
+}
+
+.col-name {
+  padding: 0 10px;
+}
+
+.cell-id {
+    font-size: 10px;
+}
+
+.col-kh-name {
+    font-size: 15px;
+}
+
+.col-gender {
+  width: 120px;
+  padding: 0px 10px;
+}
+
+.col-action {
+  width: 120px;
+}
+
+.action-group .action-sq{
+  width: 34px;
+  height: 30px;
+  border: 1px solid rgba(0,0,0,0.25);
+  background: #fff;
+  display: grid;
+  place-items: center;
+  padding: 0;
+}
+.action-group .action-sq:hover{
+  box-shadow: 0 6px 14px rgba(0,0,0,0.08);
+  transform: translateY(-1px);
+}
+.action-group .action-sq:active{ transform: translateY(0); box-shadow:none; }
+
+.action-group .edit{ color:#107c41; }
+.action-group .edit:hover{ background:#eaf3ec; border-color: rgba(16,124,65,0.55); }
+
+.action-group .delete{ color:#dc2626; }
+.action-group .delete:hover{ background:#fff1f2; border-color: rgba(220,38,38,0.45); }
+
+
+.gender-cell{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 4px;
+  border: 1px solid rgba(0,0,0,0.25);
+  background: #fff;
+  font-weight: 900;
+  font-size: 12px;
+}
+.gender-cell.male{ background:#eef2ff; color:#1d4ed8; }
+.gender-cell.female{ background:#fff1f2; color:#dc2626; }
+
+
+/* pagination */
+.excel-page-btn{
+  border: 1px solid rgba(0,0,0,0.25);
+  background: #fff;
+  color: #111;
+}
+.excel-page-btn:hover{
+  background: #eaf3ec;
+  border-color: rgba(16,124,65,0.55);
+  color: #107c41;
+}
+.excel-page-label{
+  border: 1px solid rgba(0,0,0,0.25);
+  background: #e7e6e6;
+  font-weight: 800;
+}
+
+/* keep kh font */
+.kh-font { font-family: var(--kh-body); }
+
+/* ===== Excel Modal Look ===== */
+.excel-modal {
+  border: 1px solid rgba(0,0,0,0.25);
+  border-radius: 6px;
+  overflow: hidden;
+  background: #fff;
+}
+
+/* header like excel gray row */
+.excel-modal-header {
+  background: #e7e6e6;
+  border-bottom: 1px solid rgba(0,0,0,0.25);
+  padding: 10px 12px;
+}
+
+.excel-modal-icon {
+  width: 34px;
+  height: 34px;
+  border: 1px solid rgba(0,0,0,0.25);
+  background: #fff;
+  border-radius: 4px;
+  display: grid;
+  place-items: center;
+  color: #107c41;
+  font-size: 16px;
+}
+
+.excel-modal-title {
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 1.1;
+  color: #111;
+}
+
+.excel-modal-subtitle {
+  font-size: 11px;
+  font-weight: 700;
+  color: #374151;
+  margin-top: 2px;
+}
+
+.excel-close {
+  opacity: 0.8;
+}
+.excel-close:hover {
+  opacity: 1;
+}
+
+.excel-modal-body {
+  padding: 12px;
+}
+
+/* mini info rows (like excel labels) */
+.excel-mini-info {
+  display: grid;
+  grid-template-columns: 64px 1fr;
+  gap: 8px;
+  align-items: center;
+}
+
+.excel-tag {
+  font-size: 11px;
+  font-weight: 900;
+  color: #111;
+}
+
+.excel-value {
+  font-size: 12px;
+  font-weight: 700;
+  color: #374151;
+  border: 1px solid rgba(0,0,0,0.18);
+  background: #fff;
+  padding: 6px 8px;
+  border-radius: 4px;
+}
+
+/* footer */
+.excel-modal-footer {
+  border-top: 1px solid rgba(0,0,0,0.25);
+  background: #fff;
+  padding: 10px 12px;
+}
+
+.excel-btn-lite {
+  border: 1px solid rgba(0,0,0,0.25);
+  background: #fff;
+  font-weight: 900;
+  font-size: 12px;
+  border-radius: 6px;
+  padding: 8px 12px;
+}
+.excel-btn-lite:hover {
+  background: #f3f3f3;
+}
+
+.excel-btn-save {
+  border: 1px solid rgba(0,0,0,0.25);
+  background: #107c41;
+  color: #fff;
+  font-weight: 600;
+  font-size: 12px;
+  border-radius: 6px;
+  padding: 8px 14px;
+}
+.excel-btn-save:hover {
+  filter: brightness(0.95);
+  color: #fff;
+}
+
+/* input excel-like */
+.excel-field-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #111;
+  margin-bottom: 6px;
+  display: block;
+}
+
+.excel-input {
+  border-radius: 4px;
+  border: 1px solid rgba(0,0,0,0.25);
+  font-weight: 600;
+  font-size: 12px;
+}
+.excel-input:focus {
+  border-color: rgba(16,124,65,0.6);
+  box-shadow: 0 0 0 3px rgba(16,124,65,0.12);
+}
+
+
+
+
+
+/* Empty / info box (Excel style) */
+.excel-empty-box {
+  border: 1px solid rgba(0,0,0,0.25);
+  border-radius: 6px;
+  background: #fff;
+}
+
+.excel-empty-icon {
+  width: 44px;
+  height: 44px;
+  margin: 0 auto;
+  border: 1px solid rgba(0,0,0,0.25);
+  border-radius: 6px;
+  display: grid;
+  place-items: center;
+  background: #e7e6e6; /* excel gray */
+  color: #107c41;      /* excel green */
+  font-size: 20px;
+}
+
+.excel-empty-title {
+  font-weight: 700;
+  font-size: 14px;
+  color: #111;
+}
+
+
+
+
+
+
+
+
+
+

@@ -2,6 +2,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Khmer:wght@300;400;500;600;700&family=Koulen&display=swap');
 
 :root{
+  --bg-primary-color: #fff;
+  --bg-secondary-color: #e7e6e6;
+
   --kh-body: "Noto Sans Khmer", system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
   --kh-title: "Koulen", "Noto Sans Khmer", sans-serif;
 }

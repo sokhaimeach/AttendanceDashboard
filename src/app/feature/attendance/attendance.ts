@@ -21,11 +21,14 @@ import {
 import { Classservice } from '../../services/class/classservice';
 import { Attendanceservice } from '../../services/attendance/attendanceservice';
 import { TextLoading } from '../../shared/text-loading/text-loading';
+import { Loading } from '../../shared/loading/loading';
+import { Toast } from '../../shared/toast/toast';
+import { ToastService } from '../../shared/toast/toast.service';
 
 @Component({
   selector: 'app-attendance',
   standalone: true,
-  imports: [CommonModule, FormsModule, TextLoading],
+  imports: [CommonModule, FormsModule, TextLoading, Loading, Toast],
   templateUrl: './attendance.html',
   styleUrl: './attendance.css',
 })
@@ -33,6 +36,7 @@ export class Attendance implements OnInit, AfterViewInit {
   // services
   private readonly classService = inject(Classservice);
   private readonly attendanceService = inject(Attendanceservice);
+  private readonly toastService = inject(ToastService);
 
   // state
   readonly classes = signal<ClassInterface[]>([]);
@@ -159,7 +163,10 @@ export class Attendance implements OnInit, AfterViewInit {
   }
 
   private reloadAttendanceForNewWeek(): void {
-    if (this.selectedClassId() > 0) this.onClassChange();
+    const current = this.parseDateLocal(this.selectedWeekStart());
+    current.setDate(current.getDate() + 5);
+    this.toastService.showToast(`Attendance from ${this.selectedWeekStart()} to ${this.formatDateLocal(current)}`, 'info');
+    if (this.selectedClassId() > 0) this.loadAttendance();
   }
 
   // ---------------------------
@@ -180,10 +187,10 @@ export class Attendance implements OnInit, AfterViewInit {
     });
 
     this.selectedClassId.set(Number(sessionStorage.getItem('classId')) || 0);
-    if (this.selectedClassId()) this.onClassChange();
+    if (this.selectedClassId()) this.loadAttendance();
   }
 
-  onClassChange(): void {
+  private loadAttendance(): void {
     const classId = this.selectedClassId();
     if (!classId) return;
 
@@ -210,6 +217,31 @@ export class Attendance implements OnInit, AfterViewInit {
           console.error('Error load attendance report');
         },
       });
+  }
+
+  onClassChange(): void {
+    const className = this.classes()
+    .find(c => c.class_id === Number(this.selectedClassId()))?.
+    class_name;
+    if(!className || this.selectedClassId() === 0) {
+      this.toastService.showToast(`Switched to no class`, 'info');
+    } else {
+      this.toastService.showToast(`Switched to class ${className}`, 'info');
+    }
+
+    this.loadAttendance();
+  }
+
+  onStatusChange() {
+    const status = Number(this.selectedStatus);
+    const text = status === 0? 
+    "remove status filter": status === 1?
+    "add (P) status filter" : status === 2?
+    "add (A) status filter": status === 3?
+    "add (AP) status filter": "add (L) status filter";
+
+    this.toastService.showToast(`You'd ${text}`, 'info');
+    this.loadAttendance();
   }
 
   // ---------------------------
@@ -251,22 +283,29 @@ export class Attendance implements OnInit, AfterViewInit {
   // Check all
   // -------------------
 
-  allowCheckAll() {
+  allowCheckAll(status: number) {
     if (this.isCheckAll) {
-      this.fillBlankStatus(1);
+      this.fillBlankStatus(status);
 
       const student = this.studentAttendances().map(
         (s) => s.attendance[this.lastEditedIndex],
       );
 
-      student.forEach((s) => (s.status = 1));
+      student.forEach((s) => (s.status = status));
+
+      this.attendances.forEach(a => a.status = status);
     }
+  }
+
+  onCheckAllChange() {
+    const toastMes = this.isCheckAll? "Quick check on":"Quick check off";
+    this.toastService.showToast(toastMes, 'info');
   }
 
   // ---------------------------
   // search
   search() {
-    this.onClassChange();
+    this.loadAttendance();
   }
 
   // ---------------------------
@@ -307,7 +346,7 @@ export class Attendance implements OnInit, AfterViewInit {
       });
     }
 
-    this.allowCheckAll();
+    this.allowCheckAll(nextStatus);
   }
 
   saveAttendance(): void {
@@ -317,9 +356,10 @@ export class Attendance implements OnInit, AfterViewInit {
     if (this.attendances.length === 0) return;
 
     this.attendanceService.createManyAttendances(this.attendances).subscribe({
-      next: () => {
+      next: (res) => {
         this.loadingSave.set(false);
-        this.onClassChange();
+        this.loadAttendance();
+        this.toastService.showToast(res.message, 'success');
       },
       error: () => console.error('Error save attendance'),
     });
@@ -363,13 +403,14 @@ export class Attendance implements OnInit, AfterViewInit {
     this.attendanceService
       .downloadAttendance(this.selectedClassId())
       .subscribe((blob) => {
-        this.loadingExport.set(false);
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
         a.download = 'attendance-report.xlsx';
         a.click();
         window.URL.revokeObjectURL(url);
+        this.loadingExport.set(false);
+        this.toastService.showToast("Download attendance report successfully", 'success');
       });
   }
 
@@ -407,9 +448,10 @@ export class Attendance implements OnInit, AfterViewInit {
       )
       .subscribe({
         next: (res) => {
-          this.onClassChange();
+          this.loadAttendance();
           this.loadingUpdate.set(false);
           this.closeUpdateModal();
+          this.toastService.showToast(res.message, 'success');
         },
         error: (err) => {
           this.loadingUpdate.set(false);

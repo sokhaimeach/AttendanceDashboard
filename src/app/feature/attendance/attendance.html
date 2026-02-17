@@ -106,7 +106,7 @@
               <span>Status</span>
             </div>
 
-            <select class="select-status" [(ngModel)]="selectedStatus" (change)="onClassChange()">
+            <select class="select-status" [(ngModel)]="selectedStatus" (change)="onStatusChange()">
               <option [value]="0">All</option>
               <option [value]="1">P</option>
               <option [value]="2">A</option>
@@ -123,7 +123,7 @@
             </div>
 
             <label class="switch" title="Mark all for today">
-              <input type="checkbox" [(ngModel)]="isCheckAll" />
+              <input type="checkbox" [(ngModel)]="isCheckAll" (change)="onCheckAllChange()" />
               <span class="slider"></span>
             </label>
           </div>
@@ -139,13 +139,8 @@
   <div class="card excel-header-sheet">
     <div class="card-body pt-3">
 
-      @if (loading()) {
-      <div class="text-center py-5">
-        <div class="spinner-border" role="status"></div>
-        <div class="text-secondary mt-2">Fetching class records...</div>
-      </div>
-      } @else {
-
+      <app-loading [loading]="loading()" [text]="'Fetching attendances...'"></app-loading>
+      @if (!loading()) {
       <div class="table-responsive excel-scroll">
         <table class="table table-bordered table-sm align-middle excel-table mb-0">
           <!-- fixed widths -->
@@ -392,5 +387,7 @@
       </div>
     </div>
   </div>
+
+  <app-toast></app-toast>
 
 </div>

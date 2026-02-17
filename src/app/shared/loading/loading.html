@@ -1,11 +1,6 @@
-<!-- From Uiverse.io by abrahamcalsin --> 
-<div class="dot-spinner">
-    <div class="dot-spinner__dot"></div>
-    <div class="dot-spinner__dot"></div>
-    <div class="dot-spinner__dot"></div>
-    <div class="dot-spinner__dot"></div>
-    <div class="dot-spinner__dot"></div>
-    <div class="dot-spinner__dot"></div>
-    <div class="dot-spinner__dot"></div>
-    <div class="dot-spinner__dot"></div>
+@if(loading) {
+<div class="text-center py-5">
+    <div class="spinner-border" role="status"></div>
+    <div class="text-secondary mt-2">{{text}}</div>
 </div>
+}

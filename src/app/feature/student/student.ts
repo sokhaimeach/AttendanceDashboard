@@ -6,12 +6,15 @@ import { Loading } from '../../shared/loading/loading';
 import { Classservice } from '../../services/class/classservice';
 import { StudentInterface } from '../../models/student.model';
 import { ClassInterface } from '../../models/class.model';
+import { TextLoading } from '../../shared/text-loading/text-loading';
+import { ToastService } from '../../shared/toast/toast.service';
+import { Toast } from '../../shared/toast/toast';
 declare const bootstrap: any;
 
 @Component({
   selector: 'app-student',
   standalone: true,
-  imports: [CommonModule, FormsModule, Loading],
+  imports: [CommonModule, FormsModule, Loading, TextLoading, Toast],
   templateUrl: './student.html',
   styleUrl: './student.css',
 })
@@ -56,16 +59,18 @@ export class Student implements OnInit {
     class_id: this.selectedClass,
   };
 
-  // toast
-  toastMessage = '';
-  toastIcon = 'bi-check-circle-fill text-success';
+  // loading varaible
+  loading = signal<boolean>(false);
+  loadingExport = signal<boolean>(false);
+  loadingSave = signal<boolean>(false);
+  loadingImport = signal<boolean>(false);
 
   private studentModal: any;
-  private toast: any;
 
   constructor(
     private studentservice: Studentservice,
     private classservice: Classservice,
+    private toast: ToastService
   ) {}
 
   ngOnInit() {
@@ -90,7 +95,8 @@ export class Student implements OnInit {
   }
 
   // get all student by class from backend (demo uses static data)
-  loadStudentsByClass() {
+  private loadStudentsByClass() {
+    this.loading.set(true);
     this.studentservice
       .getStudentsByClassId(
         this.selectedClass,
@@ -101,14 +107,17 @@ export class Student implements OnInit {
       )
       .subscribe({
         next: (res) => {
+          this.loading.set(false);
           this.students.set(res.data.data);
           this.totalStudents = res.data.totalStudent;
           this.totalGirls = res.data.totalGirl;
           this.totalBoys = res.data.totalBoy;
           this.totalPages = Math.ceil(this.totalStudents / 15);
-          // console.log('Fetched students:', this.students());
+          this.pageStart = this.page;
+          this.pageEnd = this.totalPages;
         },
         error: (err) => {
+          this.loading.set(false);
           console.error('Error fetching students:', err);
         },
       });
@@ -139,13 +148,19 @@ export class Student implements OnInit {
       return;
     }
 
+    this.loadingSave.set(true);
+
     this.studentservice.createStudent(this.form).subscribe({
       next: (res) => {
-        this.showToast(res.message, 'success');
-        this.loadStudentsByClass();
+        setTimeout(() => {
+          this.loadingSave.set(false);
+          this.toast.showToast(res.message, 'success');
+          this.loadStudentsByClass();
+        }, 2000);
       },
       error: (err) => {
-        this.showToast('Error create new student', 'danger');
+        this.loadingSave.set(false);
+        this.toast.showToast('Error create new student', 'danger');
       },
     });
   }
@@ -154,6 +169,7 @@ export class Student implements OnInit {
 
   // download student by class
   export() {
+    this.loadingExport.set(true);
     this.studentservice
       .downloadStudentExcel(this.selectedClass)
       .subscribe((blob) => {
@@ -165,32 +181,62 @@ export class Student implements OnInit {
         a.click();
 
         window.URL.revokeObjectURL(url);
+        this.loadingExport.set(false);
+        this.toast.showToast("Download students list successfully", 'success');
       });
   }
 
+  // ON FILTER CHANGE ACTIONS
   onClassChange() {
-    this.showToast(`Switched to class ${this.selectedClass}`, 'info');
-    sessionStorage.setItem('selectedClass', String(this.selectedClass));
+    this.clearPage();
+    const className = this.classes()
+    .find(c => c.class_id === Number(this.selectedClass))?.
+    class_name;
+    if(!className || this.selectedClass === 0) {
+      this.toast.showToast(`Switched to show all students`, 'info');
+    } else {
+      this.toast.showToast(`Switched to class ${className}`, 'info');
+    }
+    this.loadStudentsByClass();
+  }
+  onGenderChange() {
+    const toastMes = this.genderFilter === 'F'? 
+    "Filter only female students" : this.genderFilter === "M"?
+    "Filter only male students":"Remove gender filter";
+    this.toast.showToast(toastMes, "info");
+    this.loadStudentsByClass();
+  }
+  onSortChange(): void {
+    const toastMes = this.sortOrder === 'ASC'? 
+    "Filter sort students as accending" : this.sortOrder === "DESC"?
+    "Filter sort students as descending":"Remove sort filter to default";
+    this.toast.showToast(toastMes, "info");
     this.loadStudentsByClass();
   }
 
+  // search students
+  onSearch() {
+    this.loadStudentsByClass();
+  }
+
+  // import students
   import(event: Event) {
     const input = event.target as HTMLInputElement;
     if (!input.files) return;
+    this.loadingImport.set(true);
 
     const file = input.files[0] as File;
     const formData = new FormData();
     formData.append('file', file);
 
-    console.log(typeof formData, formData);
-
     // API import file
     this.studentservice.importStudentByFile(formData).subscribe({
       next: (res) => {
-        console.log(res);
-        this.showToast(`Add ${res.data.successCount}`, "success");
+        this.toast.showToast(`Add ${res.data.successCount} students to database`, "success");
+        this.loadingImport.set(false);
       },
       error: (err) => {
+        this.loadingImport.set(false);
         console.error(err.message);
       },
     });
@@ -198,14 +244,14 @@ export class Student implements OnInit {
     input.value = '';
   }
 
-  private updatePagination() {
-    // const total = this.filteredStudents.length;
-    // this.totalPages = Math.ceil(total / this.pageSize);
-    // const startIndex = (this.page - 1) * this.pageSize;
-    // const endIndex = startIndex + this.pageSize;
-    // this.pagedStudents = this.filteredStudents.slice(startIndex, endIndex);
-    // this.pageStart = total === 0 ? 0 : startIndex + 1;
-    // this.pageEnd = Math.min(endIndex, total);
+  // clear page before change class
+  clearPage() {
+    this.page = 1;
+    this.pageSize = 10;
+    this.totalPages = 0;
+    this.pageStart = 0;
+    this.pageEnd = 0;
+
   }
 
   prevPage() {
@@ -224,7 +270,7 @@ export class Student implements OnInit {
 
   // ========= CRUD UI =========
   viewStudent(s: StudentInterface) {
-    this.showToast(`Viewing ${s.studentname_en}`, 'info');
+    this.toast.showToast(`Viewing ${s.studentname_en}`, 'info');
   }
 
   openCreateModal() {
@@ -264,15 +310,19 @@ export class Student implements OnInit {
       return;
     }
 
+    this.loadingSave.set(true);
+
     this.studentservice
       .updateStudentInfo(this.selectedStudent.student_id || 0, this.form)
       .subscribe({
         next: (res) => {
+          this.loadingSave.set(false);
           this.loadStudentsByClass();
-          this.showToast('update student successfully', 'success');
+          this.toast.showToast('update student successfully', 'success');
         },
         error: (err) => {
-          this.showToast('Error updating student', 'danger');
+          this.loadingSave.set(false);
+          this.toast.showToast('Error updating student', 'danger');
         },
       });
 
@@ -282,17 +332,17 @@ export class Student implements OnInit {
 
   confrimDelete(s: StudentInterface) {
     if (!s.student_id) {
-      this.showToast('Student id is not found!', 'danger');
+      this.toast.showToast('Student id is not found!', 'danger');
       return;
     }
     if (confirm(`Are you sure you want to delete ${s.studentname_en}?`)) {
       this.studentservice.deleteStudent(s.student_id).subscribe({
         next: (res) => {
           this.loadStudentsByClass();
-          this.showToast('delete student successfully', 'success');
+          this.toast.showToast('delete student successfully', 'success');
         },
         error: (err) => {
-          this.showToast('Error updating student', 'danger');
+          this.toast.showToast('Error updating student', 'danger');
         },
       });
     }
@@ -300,30 +350,15 @@ export class Student implements OnInit {
 
   private initBootstrap() {
     const studentModalEl = document.getElementById('studentModal');
-    const deleteModalEl = document.getElementById('deleteModal');
-    const toastEl = document.getElementById('appToast');
 
     if (studentModalEl) this.studentModal = new bootstrap.Modal(studentModalEl);
-    // if (deleteModalEl) this.deleteModal = new bootstrap.Modal(deleteModalEl);
-    if (toastEl) this.toast = new bootstrap.Toast(toastEl, { delay: 2000 });
+    
   }
 
-  // ========= header actions =========
-  refresh() {
-    this.lastUpdated = new Date().toLocaleString();
-    this.loadStudentsByClass();
-    this.showToast('Refreshed successfully', 'success');
+  // turn number to percent
+  percent(a: number, b: number): number {
+    if (!a) return 0;
+    return Math.round((a * 100 / b) * 100) / 100;
   }
 
-  // ========= Toast =========
-  private showToast(msg: string, type: 'success' | 'danger' | 'info') {
-    this.toastMessage = msg;
-
-    if (type === 'success')
-      this.toastIcon = 'bi-check-circle-fill text-success';
-    if (type === 'danger') this.toastIcon = 'bi-x-circle-fill text-danger';
-    if (type === 'info') this.toastIcon = 'bi-info-circle-fill text-primary';
-
-    this.toast?.show();
-  }
 }

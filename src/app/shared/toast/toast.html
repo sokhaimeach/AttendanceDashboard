@@ -1,0 +1,12 @@
+<!-- =================== Toast Container (keep your logic) =================== -->
+<div class="toast-container position-fixed bottom-0 start-0 p-3" style="z-index: 1100;">
+    <div #appToast class="toast align-items-center border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="bi me-2" [ngClass]="toastService.toastIcon"></i>
+                {{ toastService.toastMessage }}
+            </div>
+            <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    </div>
+</div>
