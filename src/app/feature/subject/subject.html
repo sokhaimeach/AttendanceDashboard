@@ -1,0 +1,188 @@
+<div class="container-fluid py-3 attendance-wrap subject-wrap">
+
+    <!-- ===================== EXCEL STYLE HEADER ===================== -->
+    <div class="card excel-header-sheet mb-3">
+
+        <!-- top bar -->
+        <div class="excel-header-top">
+            <div class="d-flex align-items-center gap-2">
+                <div class="excel-icon-cell">
+                    <i class="bi bi-journal-bookmark-fill"></i>
+                </div>
+
+                <div class="excel-head-text">
+                    <div class="excel-head-title">Subject Management</div>
+                    <div class="excel-head-subtitle">
+                        Manage subjects used in weekly schedule and attendance
+                    </div>
+                </div>
+            </div>
+
+            <!-- actions -->
+            <div class="d-flex gap-2 flex-wrap">
+                <button type="button" class="btn excel-btn excel-btn-save" data-bs-toggle="collapse"
+                    data-bs-target="#addSubjectBox" aria-expanded="false" aria-controls="addSubjectBox">
+                    <i class="bi bi-plus-circle me-1"></i>
+                    Add Subject
+                </button>
+            </div>
+        </div>
+
+        <!-- Add subject -->
+        <div class="collapse border-top" id="addSubjectBox">
+            <div class="p-3">
+                <div class="excel-addbox">
+
+                    <div class="d-flex align-items-start justify-content-between gap-3 flex-wrap">
+                        <div>
+                            <div class="excel-addbox-title">
+                                <i class="bi bi-pencil-square me-1"></i> Create Subject
+                            </div>
+                            <div class="excel-addbox-sub">
+                                Create quickly, use short names for schedule columns.
+                            </div>
+                        </div>
+
+                        <div class="excel-chip">
+                            <i class="bi bi-lightning-charge-fill me-1"></i>
+                            Fast create
+                        </div>
+                    </div>
+
+                    <div class="row g-2 align-items-end mt-2">
+                        <div class="col-12 col-md-8">
+                            <label class="excel-field-label">Subject Name</label>
+
+                            <div class="input-group excel-input-group">
+                                <span class="input-group-text bg-white">
+                                    <i class="bi bi-type text-excel-green"></i>
+                                </span>
+                                <input class="form-control excel-input-bootstrap" placeholder="Subject name..."
+                                    [(ngModel)]="subjectName" />
+                                @if(subjectName){
+                                <button type="button" class="btn excel-clear-btn" title="Clear"
+                                    (click)="subjectName=''">
+                                    <i class="bi bi-x-circle"></i>
+                                </button>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-4 d-grid">
+                            <button type="button" class="btn excel-btn-save" (click)="onCreateSubject()">
+                                @if(loadingCreate()) {
+                                <app-text-loading></app-text-loading>
+                                } @else {
+                                <i class="bi bi-check2-circle me-1"></i>
+                                Save
+                                }
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Search -->
+        <div class="p-3 border-top">
+            <div class="row g-2 align-items-end">
+                <div class="col-12 col-lg-12">
+                    <div class="excel-filter-label">
+                        <i class="bi bi-search me-1"></i> Search
+                    </div>
+
+                    <div class="input-group excel-input-group">
+                        <span class="input-group-text bg-white">
+                            <i class="bi bi-search text-excel-green"></i>
+                        </span>
+                        <input type="text" class="form-control excel-input-bootstrap" [(ngModel)]="searchText"
+                            placeholder="Search subject name..." (input)="onSearch()" />
+                        @if(searchText){
+                        <button type="button" class="btn excel-clear-btn" title="Clear search"
+                            (click)="searchText=''; onSearch()">
+                            <i class="bi bi-x-circle"></i>
+                        </button>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ===================== SUBJECT GRID ===================== -->
+    <div class="row g-2">
+
+        @for(s of subjects(); track $index) {
+        <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
+
+            <div class="card subject-card">
+                <div class="card-body subject-card-body">
+
+                    <!-- LEFT -->
+                    <div class="subject-left">
+
+                        <div class="subject-icon">
+                            <i class="bi bi-book-fill"></i>
+                        </div>
+
+                        <div class="subject-info min-w-0">
+
+                            @if(isEdit(s.subject_id || -1)) {
+                            <div class="subject-edit-wrap">
+                                <input type="text" class="form-control subject-edit-input"
+                                    [(ngModel)]="selectedSubjectName" placeholder="Subject name..." />
+
+                                <!-- cancel icon inside input -->
+                                <button type="button" class="btn subject-cancel-btn" title="Cancel"
+                                    (click)="cancelEdit()">
+                                    <i class="bi bi-x"></i>
+                                </button>
+                            </div>
+                            } @else {
+                            <div class="subject-name text-truncate">{{ s.subject_name }}</div>
+                            }
+
+                            <div class="subject-sub text-muted">
+                                ID: {{ s.subject_id }}
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- RIGHT actions (ALWAYS right aligned) -->
+                    <div class="subject-actions">
+
+                        <button type="button" class="btn action-sq edit" [class.save]="isEdit(s.subject_id || -1)"
+                            [title]="isEdit(s.subject_id || -1) ? 'Save' : 'Edit'"
+                            (click)="isEdit(s.subject_id || -1) ? onSaveEdit() : editSubject(s)">
+                            @if(isEdit(s.subject_id || -1)) {
+                            @if(loadingEdit()) {
+                            <span class="mini-spinner" aria-hidden="true"></span>
+                            } @else {
+                            <i class="bi bi-check2-circle"></i>
+                            }
+                            } @else {
+                            <i class="bi bi-pencil-square"></i>
+                            }
+                        </button>
+
+                        <button type="button" class="btn action-sq delete" title="Delete" (click)="onDeleteSubject(s)">
+                            <i class="bi bi-trash"></i>
+                        </button>
+
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+        }
+
+    </div>
+
+</div>
+
+<app-toast></app-toast>
