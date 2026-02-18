@@ -10,7 +10,8 @@ export const routes: Routes = [
             {path: 'students', loadComponent: () => import('./feature/student/student').then(c => c.Student)},
             {path: 'record', component: RecordAttendance},
             {path: 'classes', loadComponent: () => import('./feature/class/class').then(c => c.Class)},
-            {path: 'attendance', loadComponent: () => import('./feature/attendance/attendance').then(c => c.Attendance)}
+            {path: 'attendance', loadComponent: () => import('./feature/attendance/attendance').then(c => c.Attendance)},
+            {path: 'teacher', loadComponent: () => import('./feature/teacher/teacher').then(c => c.Teacher)}
         ]
     },
 ];

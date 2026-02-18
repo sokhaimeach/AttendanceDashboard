@@ -1,0 +1,519 @@
+/* page */
+.teacher-wrap { background: #f6f7fb; }
+
+/* excel sheet container */
+.excel-header-sheet{
+  background:#fff;
+  border:1px solid rgba(0,0,0,0.25);
+  border-radius:6px;
+  overflow:hidden;
+}
+
+/* top bar */
+.excel-header-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  padding:10px 12px;
+  background:#e7e6e6;
+}
+
+.excel-icon-cell{
+  width:40px;
+  height:40px;
+  border:1px solid rgba(0,0,0,0.25);
+  background:#fff;
+  display:grid;
+  place-items:center;
+  border-radius:4px;
+  color:#107c41;
+  font-size:18px;
+}
+
+.excel-icon-cell--mini{
+  width:32px;
+  height:32px;
+  font-size:14px;
+}
+
+.excel-head-title{
+  text-transform:uppercase;
+  font-weight:700;
+  font-size:16px;
+  color:#111;
+  line-height:1.1;
+}
+.excel-head-subtitle{
+  font-size:12px;
+  font-weight:600;
+  color:#374151;
+  margin-top:2px;
+}
+
+.excel-divider{
+  height:1px;
+  background:rgba(0,0,0,0.25);
+}
+
+.excel-btn{
+  height:40px;
+  border-radius:6px;
+  font-weight:700;
+  padding:0 14px;
+  font-size:14px;
+  border:1px solid rgba(0,0,0,0.25);
+}
+
+.excel-btn-save{
+  border:1px solid rgba(0,0,0,0.25);
+  background:#107c41;
+  color:#fff;
+}
+.excel-btn-save:hover{ filter:brightness(0.95); color:#fff; }
+
+/* report */
+.excel-reportbar{
+  border-bottom:1px solid rgba(0,0,0,0.25);
+  border-top:1px solid rgba(0,0,0,0.25);
+  background:#fff;
+}
+
+.excel-kpi{
+  border:1px solid rgba(0,0,0,0.18);
+  border-radius:6px;
+  background:#fff;
+  padding:8px 10px;
+  height:85px;
+}
+
+.excel-kpi-top{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  font-size:11px;
+  font-weight:900;
+  color:#374151;
+}
+.excel-kpi-top i{ color:#107c41; }
+
+.excel-kpi-val{
+  font-size:28px;
+  font-weight:950;
+  color:#111;
+  line-height:1;
+  margin-top:3px;
+}
+.excel-kpi-sub{
+  margin-top:3px;
+  font-size:11px;
+  font-weight:800;
+  color:#6b7280;
+}
+
+.excel-insight{
+  border:1px solid rgba(0,0,0,0.18);
+  border-radius:6px;
+  background:#f8fafc;
+  padding:8px 10px;
+  height:85px;
+}
+.excel-insight-top{
+  font-size:11px;
+  font-weight:950;
+  color:#111;
+  display:flex;
+  align-items:center;
+}
+.excel-insight-top i{ color:#107c41; }
+.excel-insight-text{
+  margin-top:4px;
+  font-size:11px;
+  font-weight:800;
+  color:#374151;
+}
+
+/* progress */
+.excel-progress{
+  height:8px;
+  border-radius:999px;
+  background:#e5e7eb;
+  overflow:hidden;
+}
+.excel-progress-active{ background:#16a34a; }
+.excel-progress-inactive{ background:#dc2626; }
+
+.excel-insight-legend{
+  display:flex;
+  gap:12px;
+  font-size:10px;
+  font-weight:900;
+  color:#6b7280;
+}
+.dot{
+  display:inline-block;
+  width:8px;
+  height:8px;
+  border-radius:999px;
+  margin-right:6px;
+}
+.dot.active{ background:#16a34a; }
+.dot.inactive{ background:#dc2626; }
+
+/* filters */
+.excel-filter-label{
+  font-size:12px;
+  font-weight:700;
+  color:#111;
+  margin-bottom:6px;
+}
+.excel-filter-label i{ color:#107c41; }
+
+.excel-control{
+  width:100%;
+  border:1px solid rgba(0,0,0,0.25);
+  background:#fff;
+  height:38px;
+  padding:0 8px;
+  border-radius:4px;
+  font-weight:700;
+  font-size:14px;
+}
+
+.excel-input-group{
+  border:1px solid rgba(0,0,0,0.25);
+  border-radius:4px;
+  overflow:hidden;
+}
+.excel-input-bootstrap{
+  border:0 !important;
+  box-shadow:none !important;
+  font-size:14px;
+}
+.text-excel-green{ color:#107c41; }
+
+/* table */
+.excel-table thead th{
+  background:#e7e6e6;
+  color:#111;
+  border:1px solid rgba(0,0,0,0.25);
+  padding:7px 6px;
+  text-align:center;
+  vertical-align:middle;
+  font-size:12px;
+  text-transform:uppercase;
+}
+
+.col-no{ width:60px; }
+.col-role{ width:130px; }
+.col-phone{ width:170px; }
+.col-status{ width:120px; }
+.col-action{ width:120px; }
+
+.text-truncate {
+  font-size: 14px;
+}
+
+.excel-avatar{
+  width:30px;
+  height:30px;
+  border:1px solid rgba(0,0,0,0.25);
+  border-radius:4px;
+  display:grid;
+  place-items:center;
+  background:#eaf3ec;
+  color:#107c41;
+  overflow: hidden;
+}
+
+.avatar-image {
+  width: 30px;
+}
+
+/* role chips */
+.role-chip{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  height:28px;
+  padding:0 10px;
+  border-radius:6px;
+  border:1px solid rgba(0,0,0,0.25);
+  font-weight:700;
+  font-size:12px;
+  background:#fff;
+}
+.role-teacher{ background:#eaf3ec; color:#107c41; }
+.role-admin{ background:#eef2ff; color:#2563eb; }
+
+/* status */
+.status-chip{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  height:28px;
+  padding:0 10px;
+  border-radius:999px;
+  border:1px solid rgba(0,0,0,0.25);
+  font-weight:700;
+  font-size:12px;
+  background:#fff;
+}
+.status-dot{
+  width:8px;
+  height:8px;
+  border-radius:999px;
+}
+.status-active{ background:#eaf3ec; color:#107c41; }
+.status-active .status-dot{ background:#16a34a; }
+
+.status-inactive{ background:#fff1f2; color:#dc2626; }
+.status-inactive .status-dot{ background:#dc2626; }
+
+/* actions */
+.action-group .action-sq{
+  width:34px;
+  height:30px;
+  border:1px solid rgba(0,0,0,0.25);
+  background:#fff;
+  display:grid;
+  place-items:center;
+  padding:0;
+  transition: transform .08s ease, box-shadow .12s ease, background .12s ease;
+}
+.action-group .action-sq:hover{
+  box-shadow:0 6px 14px rgba(0,0,0,0.08);
+  transform:translateY(-1px);
+}
+.action-group .action-sq:active{ transform:translateY(0); box-shadow:none; }
+
+.action-group .edit{ color:#107c41; }
+.action-group .edit:hover{ background:#eaf3ec; border-color:rgba(16,124,65,0.55); }
+
+.action-group .view{ color:#2563eb; }
+.action-group .view:hover{ background:#eef2ff; border-color:rgba(37,99,235,0.45); }
+
+/* modal */
+.excel-modal{
+  border:1px solid rgba(0,0,0,0.25);
+  border-radius:6px;
+  overflow:hidden;
+  background:#fff;
+}
+.excel-modal-header{
+  background:#e7e6e6;
+  border-bottom:1px solid rgba(0,0,0,0.25);
+  padding:10px 12px;
+}
+.excel-modal-icon{
+  width:34px;
+  height:34px;
+  border:1px solid rgba(0,0,0,0.25);
+  background:#fff;
+  border-radius:4px;
+  display:grid;
+  place-items:center;
+  color:#107c41;
+  font-size:16px;
+}
+.excel-modal-title{
+  font-weight:700;
+  font-size:14px;
+  color:#111;
+  line-height:1.1;
+}
+.excel-modal-subtitle{
+  font-size:11px;
+  font-weight:700;
+  color:#374151;
+  margin-top:2px;
+}
+.excel-modal-body{ padding:12px; }
+.excel-modal-footer{
+  border-top:1px solid rgba(0,0,0,0.25);
+  background:#fff;
+  padding:10px 12px;
+}
+
+.excel-btn-lite{
+  border:1px solid rgba(0,0,0,0.25);
+  background:#fff;
+  font-weight:700;
+  font-size:12px;
+  border-radius:6px;
+  padding:8px 12px;
+}
+.excel-btn-lite:hover{ background:#f3f3f3; }
+
+.excel-field-label{
+  font-size:11px;
+  font-weight:700;
+  color:#111;
+  margin-bottom:6px;
+  display:block;
+}
+.excel-input{
+  border-radius:4px;
+  border:1px solid rgba(0,0,0,0.25);
+  font-size:13px;
+  height: 40px;
+}
+
+.eye-pass {
+  top: 27px;
+  right: 20px;
+  cursor: pointer;
+  transition: .2s ease;
+}
+
+.eye-pass:hover {
+  color: #107c41;
+}
+
+/* From Uiverse.io by Yaya12085 */ 
+.custum-file-upload {
+  height: 200px;
+  width: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: space-between;
+  gap: 20px;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed #cacaca;
+  background-color: rgba(255, 255, 255, 1);
+  padding: 1.5rem;
+  border-radius: 10px;
+  box-shadow: 0px 48px 35px -48px rgba(0,0,0,0.1);
+}
+
+.custum-file-upload .icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.custum-file-upload .icon svg {
+  height: 80px;
+  fill: rgba(75, 85, 99, 1);
+}
+
+.custum-file-upload .text {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.custum-file-upload .text span {
+  font-weight: 400;
+  color: rgba(75, 85, 99, 1);
+}
+
+.custum-file-upload input {
+  display: none;
+}
+
+/* keep your existing excel modal styles (from your code) */
+
+/* Bigger modal look */
+.modal-lg .excel-modal-body{
+  padding: 14px;
+}
+
+/* small utility */
+.text-excel-green{ color:#107c41; }
+
+/* Left upload card */
+.excel-upload-card{
+  border: 1px solid rgba(0,0,0,0.18);
+  border-radius: 8px;
+  background: #f8fafc;
+  padding: 12px;
+}
+.excel-upload-title{
+  font-size: 12px;
+  font-weight: 700;
+  color: #111;
+  display:flex;
+  align-items:center;
+}
+.excel-upload-title i{ color:#107c41; }
+
+/* Preview */
+.excel-photo-preview{
+  border: 1px dashed rgba(0,0,0,0.28);
+  border-radius: 10px;
+  background: #fff;
+  padding: 3px;
+  display: grid;
+  place-items: center;
+  min-height: 170px;
+}
+.excel-photo-placeholder{
+  width: 92px;
+  height: 92px;
+  border-radius: 999px;
+  border: 1px solid rgba(0,0,0,0.18);
+  background: #eaf3ec;
+  color: #107c41;
+  display: grid;
+  place-items: center;
+  font-size: 44px;
+}
+
+.excel-preview {
+  width: 100%;
+  border-radius: 7px;
+}
+
+/* Upload button matches excel */
+.excel-upload-btn{
+  border: 1px solid rgba(0,0,0,0.25) !important;
+  font-weight: 900;
+}
+
+/* Right form card */
+.excel-form-card{
+  border: 1px solid rgba(0,0,0,0.18);
+  border-radius: 8px;
+  background: #fff;
+  padding: 12px;
+}
+
+/* input groups: make them excel-ish */
+.input-group .input-group-text{
+  border: 1px solid rgba(0,0,0,0.25);
+}
+.input-group .form-control{
+  border: 1px solid rgba(0,0,0,0.25);
+}
+.input-group:focus-within .input-group-text,
+.input-group:focus-within .form-control{
+  border-color: rgba(16,124,65,0.6);
+  box-shadow: 0 0 0 3px rgba(16,124,65,0.10);
+}
+
+/* eye button */
+.excel-eye-btn{
+  border: 1px solid rgba(0,0,0,0.25);
+}
+
+/* hint badge */
+.excel-hint-badge{
+  font-size: 11px;
+  font-weight: 900;
+  color: #374151;
+}
+
+/* Active row */
+.excel-active-row{
+  border: 1px solid rgba(0,0,0,0.18);
+  background: #f8fafc;
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+
+/* Khmer font */
+.kh-font { font-family: var(--kh-body); }

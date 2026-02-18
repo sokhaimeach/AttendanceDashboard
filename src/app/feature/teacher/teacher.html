@@ -1,0 +1,480 @@
+<div class="container-fluid py-3 attendance-wrap teacher-wrap">
+
+    <!-- ===================== EXCEL STYLE HEADER ===================== -->
+    <div class="card excel-header-sheet mb-3">
+
+        <!-- top bar -->
+        <div class="excel-header-top">
+            <div class="d-flex align-items-center gap-2">
+                <div class="excel-icon-cell">
+                    <i class="bi bi-person-badge-fill"></i>
+                </div>
+
+                <div class="excel-head-text">
+                    <div class="excel-head-title">Teacher Management</div>
+                    <div class="excel-head-subtitle">
+                        Manage teacher accounts • Roles: <span class="fw-semibold">Teacher / Admin</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- actions (NO import/export) -->
+            <div class="d-flex gap-2 flex-wrap">
+                <button class="btn excel-btn excel-btn-save" (click)="clearForm()"
+                data-bs-toggle="modal" data-bs-target="#teacherModal">
+                    <i class="bi bi-person-plus me-1"></i>
+                    Add Teacher
+                </button>
+            </div>
+        </div>
+
+        <!-- ===================== Report Bar ===================== -->
+        <div class="excel-reportbar px-3 py-2">
+            <div class="row g-2 align-items-center">
+
+                <!-- KPIs -->
+                <div class="col-12 col-lg-7">
+                    <div class="row g-2">
+                        <div class="col-4">
+                            <div class="excel-kpi">
+                                <div class="excel-kpi-top">
+                                    <i class="bi bi-people-fill"></i>
+                                    <span>Total</span>
+                                </div>
+                                <div class="excel-kpi-val">{{totalTeacher()}}</div>
+                                <div class="excel-kpi-sub">accounts</div>
+                            </div>
+                        </div>
+
+                        <div class="col-4">
+                            <div class="excel-kpi">
+                                <div class="excel-kpi-top">
+                                    <i class="bi bi-person-workspace"></i>
+                                    <span>Teachers</span>
+                                </div>
+                                <div class="excel-kpi-val">{{totalTeacherRole()}}</div>
+                                <div class="excel-kpi-sub">role: teacher</div>
+                            </div>
+                        </div>
+
+                        <div class="col-4">
+                            <div class="excel-kpi">
+                                <div class="excel-kpi-top">
+                                    <i class="bi bi-shield-lock-fill"></i>
+                                    <span>Admins</span>
+                                </div>
+                                <div class="excel-kpi-val">{{totalAdminRole()}}</div>
+                                <div class="excel-kpi-sub">role: admin</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Insight -->
+                <div class="col-12 col-lg-5">
+                    <div class="excel-insight">
+                        <div class="excel-insight-top">
+                            <i class="bi bi-lightning-charge-fill me-1"></i>
+                            Quick Insight
+                        </div>
+
+                        <div class="excel-insight-text">
+                            Compare between active and inactive account.
+                        </div>
+
+                        <div class="progress excel-progress mt-1" role="progressbar">
+                            <div class="progress-bar excel-progress-active"
+                                [style.width.%]="toPercent(totalActive(), totalTeacher())"></div>
+                            <div class="progress-bar excel-progress-inactive"
+                                [style.width.%]="toPercent(totalTeacher() - totalActive(), totalTeacher())"></div>
+                        </div>
+
+                        <div class="excel-insight-legend mt-1">
+                            <span><span class="dot active"></span> Active</span>
+                            <span><span class="dot inactive"></span> Inactive</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Filters row -->
+        <div class="p-3">
+            <div class="row g-2 align-items-end">
+
+                <!-- Search -->
+                <div class="col-12 col-lg-6">
+                    <div class="excel-filter-label">
+                        <i class="bi bi-search me-1"></i> Search
+                    </div>
+
+                    <div class="input-group excel-input-group">
+                        <span class="input-group-text bg-white">
+                            <i class="bi bi-search text-excel-green"></i>
+                        </span>
+                        <input type="text" class="form-control kh-font excel-input-bootstrap" [(ngModel)]="searchText"
+                            placeholder="Search teacher by name or phone..." (input)="onSearch()" />
+                    </div>
+                </div>
+
+                <!-- Role -->
+                <div class="col-6 col-lg-3">
+                    <div class="excel-filter-label">
+                        <i class="bi bi-person-gear me-1"></i> Role
+                    </div>
+
+                    <select class="excel-control" [(ngModel)]="selectRole" (change)="onRoleChange()">
+                        <option value="">All</option>
+                        <option value="teacher">Teacher</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+
+                <!-- Status -->
+                <div class="col-6 col-lg-3">
+                    <div class="excel-filter-label">
+                        <i class="bi bi-toggle2-on me-1"></i> Status
+                    </div>
+
+                    <select class="excel-control" [(ngModel)]="selectStatus" (change)="onStatusChange()">
+                        <option value="">All</option>
+                        <option value="true">Active</option>
+                        <option value="false">Inactive</option>
+                    </select>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================== TABLE ===================== -->
+    <div class="card excel-header-sheet">
+        <div class="card-body pt-3">
+
+            <app-loading [loading]="loading()" [text]="'Fetching teachers from database...'"></app-loading>
+
+            @if(!loading()) {
+            <div class="table-responsive excel-scroll">
+                <table class="table table-bordered table-sm align-middle excel-table mb-0 teacher-excel-table">
+
+                    <thead>
+                        <tr>
+                            <th class="text-center col-no">No</th>
+                            <th class="text-start col-name">Teacher</th>
+                            <th class="text-start col-kh">Khmer Name</th>
+                            <th class="text-center col-role">Role</th>
+                            <th class="text-start col-phone">Phone</th>
+                            <th class="text-center col-status">Status</th>
+                            <th class="text-center col-action">Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @if(teachers().length > 0) {
+                        @for(t of teachers(); track $index) {
+                        <tr class="excel-row">
+                            <td class="text-center text-secondary fw-semibold col-no">{{$index + 1}}</td>
+
+                            <td class="text-start col-name">
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="excel-avatar">
+                                        @if(t.image_url) {
+                                            <img class="avatar-image" [src]="t.image_url" alt="">
+                                        } @else {
+                                            <i class="bi bi-person-fill"></i>
+                                        }
+                                    </div>
+                                    <div class="text-truncate">
+                                        <div class="text-truncate fw-semibold">{{t.teachername_en}}</div>
+                                        <div class="text-muted small cell-id">
+                                            ID: <span class="fw-semibold">{{t.teacher_id}}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td class="text-start col-kh kh-font text-truncate">{{t.teachername_kh}}</td>
+
+                            <td class="text-center col-role">
+                                @if(t.role === 'teacher'){
+                                <span class="role-chip role-teacher">
+                                    <i class="bi bi-person-workspace me-1"></i>
+                                    {{t.role | titlecase}}
+                                </span>
+                                } @else {
+                                <span class="role-chip role-admin">
+                                    <i class="bi bi-person-workspace me-1"></i>
+                                    {{t.role | titlecase}}
+                                </span>
+                                }
+                            </td>
+
+                            <td class="text-start col-phone">{{t.phone}}</td>
+
+                            <td class="text-center col-status">
+                                @if(t.is_active) {
+                                <span class="status-chip status-active">
+                                    <span class="status-dot"></span> Active
+                                </span>
+                                } @else {
+                                <span class="status-chip status-inactive">
+                                    <span class="status-dot"></span> Inactive
+                                </span>
+                                }
+                            </td>
+
+                            <td class="text-center col-action">
+                                <div class="btn-group btn-group-sm action-group" role="group">
+                                    <button type="button" class="btn action-sq view" title="View Account">
+                                        <i class="bi bi-person-vcard"></i>
+                                    </button>
+                                    <button type="button" class="btn action-sq edit" title="Edit" data-bs-toggle="modal" data-bs-target="#teacherModal" (click)="openEditModal(t)">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        }
+                        } @else {
+                        <tr>
+                            <td colspan="7" class="text-center py-4 text-muted">
+                                <i class="bi bi-inbox fs-3 d-block mb-2"></i>
+                                No teachers found.
+                            </td>
+                        </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+            </div>
+
+            <!-- pagination (static) -->
+            <div class="mt-2 d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2">
+                <div class="text-muted small">
+                    Page <span class="fw-semibold">1</span> / <span class="fw-semibold">{{totalPages}}</span>
+                </div>
+
+                <nav>
+                    <ul class="pagination pagination-sm mb-0">
+                        <li class="page-item" [class.disabled]="page===1">
+                            <button class="page-link excel-page-btn opacity-50" (click)="onPrevPage()">
+                                <i class="bi bi-chevron-left"></i>
+                            </button>
+                        </li>
+
+                        <li class="page-item mx-2" [class.disabled]="page===1 || page >= totalPages">
+                            <span class="page-link excel-page-label">
+                                Showing 1–{{totalPages}}
+                            </span>
+                        </li>
+
+                        <li class="page-item" [class.disabled]="page>=totalPages">
+                            <button class="page-link excel-page-btn opacity-50" (click)="onNextPage()">
+                                <i class="bi bi-chevron-right"></i>
+                            </button>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+
+            }
+
+        </div>
+    </div>
+
+</div>
+
+<!-- =================== Create Teacher Modal (Improved) =================== -->
+<div class="modal fade" id="teacherModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content excel-modal">
+
+            <!-- Header -->
+            <div class="modal-header excel-modal-header">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="excel-modal-icon">
+                        <i class="bi bi-person-plus-fill"></i>
+                    </div>
+                    <div>
+                        <div class="excel-modal-title">{{isEdit? 'Edit Teacher info':'Add new Teacher'}}</div>
+                        <div class="excel-modal-subtitle">Manage teacher account create and update</div>
+                    </div>
+                </div>
+
+                <button type="button" class="btn-close excel-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <!-- Body -->
+            <div class="modal-body excel-modal-body">
+
+                <div class="row g-3">
+
+                    <!-- LEFT: Image upload / preview -->
+                    <div class="col-12 col-lg-4">
+                        <div class="excel-upload-card h-100">
+
+                            <div class="excel-upload-title">
+                                <i class="bi bi-image me-1"></i> Profile Photo
+                            </div>
+
+                            <!-- preview box -->
+                            <div class="excel-photo-preview mt-2">
+                                @if(imagePreview) {
+                                <img class="excel-preview" [src]="imagePreview" alt="">
+                                } @else {
+
+                                <div class="excel-photo-placeholder">
+                                    <i class="bi bi-person-circle"></i>
+                                </div>
+                                }
+                            </div>
+
+                            <div class="d-grid gap-2 mt-3">
+                                <label class="btn btn-outline-secondary btn-sm excel-upload-btn mb-0">
+                                    <i class="bi bi-upload me-1"></i> Upload Image
+                                    <input type="file" class="d-none" accept="image/*"
+                                        (change)="onFileSelected($event)" />
+                                </label>
+
+                                <button type="button" class="btn btn-outline-danger btn-sm" (click)="onRemoveFile()" 
+                                [disabled]="imagePreview? false:true">
+                                    <i class="bi bi-trash3 me-1"></i> Remove
+                                </button>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- RIGHT: Form -->
+                    <div class="col-12 col-lg-8">
+                        <div class="excel-form-card">
+
+                            <div class="row g-3">
+
+                                <!-- Khmer Name -->
+                                <div class="col-12">
+                                    <label class="excel-field-label">
+                                        Khmer Name <span class="text-danger">*</span>
+                                    </label>
+
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white">
+                                            <i class="bi bi-type text-excel-green"></i>
+                                        </span>
+                                        <input class="form-control excel-input kh-font" placeholder="ឧ. ដាវិត"
+                                            [(ngModel)]="form.teachername_kh" />
+                                    </div>
+                                </div>
+
+                                <!-- English Name -->
+                                <div class="col-12">
+                                    <label class="excel-field-label">
+                                        English Name <span class="text-danger">*</span>
+                                    </label>
+
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white">
+                                            <i class="bi bi-person text-excel-green"></i>
+                                        </span>
+                                        <input class="form-control excel-input" placeholder="e.g. Davit"
+                                            [(ngModel)]="form.teachername_en" />
+                                    </div>
+                                </div>
+
+                                <!-- Phone + Role -->
+                                <div class="col-12 col-md-6">
+                                    <label class="excel-field-label">
+                                        Phone <span class="text-danger">*</span>
+                                    </label>
+
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white">
+                                            <i class="bi bi-telephone text-excel-green"></i>
+                                        </span>
+                                        <input class="form-control excel-input" placeholder="e.g. 0123456789"
+                                            [(ngModel)]="form.phone" />
+                                    </div>
+                                </div>
+
+                                <div class="col-12 col-md-6">
+                                    <label class="excel-field-label">Role</label>
+                                    <select class="form-select excel-input" [disabled]="isEdit?true:false"
+                                        [(ngModel)]="form.role">
+                                        <option value="teacher">Teacher</option>
+                                        <option value="admin">Admin</option>
+                                    </select>
+                                </div>
+
+                                <!-- Password -->
+                                <div class="col-12">
+                                    <label class="excel-field-label">
+                                        Password <span class="text-danger">*</span>
+                                    </label>
+
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white">
+                                            <i class="bi bi-lock text-excel-green"></i>
+                                        </span>
+
+                                        <input class="form-control excel-input"
+                                            [type]="showPassword() ? 'text' : 'password'" minlength="4" required
+                                            placeholder="Minimum 4 characters" [(ngModel)]="form.password"
+                                            [disabled]="isEdit? true:false" />
+
+                                        <button type="button" class="btn btn-outline-secondary excel-eye-btn"
+                                            (click)="togglePassword()"
+                                            [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'">
+                                            <i class="bi" [ngClass]="eyeIcon()"></i>
+                                        </button>
+                                    </div>
+
+                                    <div class="d-flex justify-content-between align-items-center mt-1">
+                                        <div class="text-muted small">
+                                            <i class="bi bi-info-circle me-1 text-info"></i> Use a strong password in production.
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Active toggle (optional UI) -->
+                                <div class="col-12">
+                                    <div class="d-flex align-items-center justify-content-between excel-active-row">
+                                        <div>
+                                            <div class="fw-semibold" style="font-size: 13px;">Account Status</div>
+                                            <div class="text-muted small">Enable/disable teacher access</div>
+                                        </div>
+
+                                        <div class="form-check form-switch m-0">
+                                            <input class="form-check-input" type="checkbox" [(ngModel)]="form.is_active"
+                                            (click)="onSelectStatusChange()" [disabled]="isEdit?true:false">
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="modal-footer excel-modal-footer">
+                <button class="btn excel-btn-lite" data-bs-dismiss="modal">Cancel</button>
+
+                <button class="btn excel-btn-save" (click)="isEdit? onUpdate(): onSubmit()">
+                    @if(loadingModal()) {
+                        <app-text-loading></app-text-loading>
+                    } @else {
+                        <i class="bi bi-check2-circle me-1"></i> Save
+                    }
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<app-toast></app-toast>
