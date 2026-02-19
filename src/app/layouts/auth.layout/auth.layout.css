@@ -1,0 +1,139 @@
+/* page background */
+.login-page{
+  min-height: 100vh;
+  background: #f6f7fb;
+}
+
+/* card */
+.login-card{
+  border: 1px solid rgba(0,0,0,0.25);
+  border-radius: 10px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 14px 32px rgba(0,0,0,0.08);
+}
+
+/* header */
+.login-head{
+  padding: 12px 14px;
+  background: #e7e6e6;
+  border-bottom: 1px solid rgba(0,0,0,0.25);
+}
+
+.login-icon{
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  border: 1px solid rgba(0,0,0,0.25);
+  background: #fff;
+  display: grid;
+  place-items: center;
+  color: #107c41;
+  font-size: 18px;
+}
+
+.login-title{
+  font-weight: 700;
+  font-size: 16px;
+  color: #111;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+.login-sub{
+  font-weight: 600;
+  font-size: 12px;
+  color: #374151;
+  margin-top: 2px;
+}
+
+.login-badge{
+  display: inline-flex;
+  align-items: center;
+  height: 30px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(0,0,0,0.25);
+  background: rgba(255,255,255,0.85);
+  font-weight: 700;
+  font-size: 12px;
+  color: #111;
+}
+
+/* label */
+.excel-label{
+  font-weight: 700;
+  font-size: 12px;
+  color: #111;
+  margin-bottom: 6px;
+}
+.excel-label i{ color: #107c41; }
+
+.text-excel-green{ color:#107c41; }
+
+/* input group excel style */
+.excel-input-group{
+  border: 1px solid rgba(0,0,0,0.25);
+  border-radius: 6px;
+  overflow: hidden;
+  background: #fff;
+}
+.excel-input-group:focus-within{
+  border-color: rgba(16,124,65,0.6);
+  box-shadow: 0 0 0 3px rgba(16,124,65,0.10);
+}
+
+.excel-input-group .input-group-text{
+  border: 0;
+}
+
+.excel-input{
+  border: 0 !important;
+  box-shadow: none !important;
+  font-size: 14px;
+}
+
+/* clear button */
+.excel-clear-btn{
+  border: 0;
+  background: #fff;
+  padding: 0 10px;
+}
+.excel-clear-btn i{ color:#6b7280; }
+.excel-clear-btn:hover i{ color:#107c41; }
+
+/* eye button */
+.excel-eye-btn{
+  border: 0;
+  background: #fff;
+  padding: 0 12px;
+}
+.excel-eye-btn i{ color:#6b7280; }
+.excel-eye-btn:hover i{ color:#107c41; }
+
+/* login primary btn */
+.excel-btn-save{
+  height: 40px;
+  border-radius: 6px;
+  border: 1px solid rgba(0,0,0,0.25);
+  background: #107c41;
+  color: #fff;
+  font-weight: 700;
+  font-size: 14px;
+}
+.excel-btn-save:hover{ filter: brightness(0.95); color:#fff; }
+
+/* link */
+.login-link{
+  text-decoration: none;
+  color: #107c41;
+  font-weight: 700;
+}
+.login-link:hover{
+  text-decoration: underline;
+}
+
+.font-kh {
+    font-family: var(--kh-body);
+    font-size: 13px;
+}

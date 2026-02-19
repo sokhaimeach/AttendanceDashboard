@@ -1,0 +1,110 @@
+<div class="login-page d-flex align-items-center">
+    <div class="container py-4">
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-9 col-lg-7 col-xl-5">
+
+                <div class="card login-card">
+                    <!-- header -->
+                    <div class="login-head d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="login-icon">
+                                <i class="bi bi-shield-lock-fill"></i>
+                            </div>
+                            <div>
+                                <div class="login-title">Login to Manage</div>
+                                <div class="login-sub">Sign in with teacher name and password</div>
+                            </div>
+                        </div>
+
+                        <span class="login-badge">
+                            <i class="bi bi-person-badge me-1"></i> Teacher / Admin
+                        </span>
+                    </div>
+
+                    <div class="card-body p-3 p-md-4">
+                        <!-- optional alert -->
+                        @if(isFailed()) {
+                        <div class="alert alert-danger py-2 small mb-3">
+                            <i class="bi bi-exclamation-triangle me-1"></i>
+                            {{message}}
+                        </div>
+                        }
+
+
+                        <form (submit)="login(); $event.preventDefault()">
+                            <!-- teachername -->
+                            <div class="mb-3">
+                                <label class="form-label excel-label">
+                                    <i class="bi bi-person-fill me-1"></i> Teacher Name
+                                </label>
+
+                                <div class="input-group excel-input-group">
+                                    <span class="input-group-text bg-white">
+                                        <i class="bi bi-person text-excel-green"></i>
+                                    </span>
+                                    <input type="text" class="form-control excel-input font-kh"
+                                        placeholder="English or Khmer name" [(ngModel)]="form.username"
+                                        name="username" autocomplete="username" />
+                                    <button class="btn excel-clear-btn" type="button" title="Clear" (click)="form.username=''">
+                                        <i class="bi bi-x-circle"></i>
+                                    </button>
+                                </div>
+
+                            </div>
+
+                            <!-- password -->
+                            <div class="mb-2">
+                                <label class="form-label excel-label">
+                                    <i class="bi bi-key-fill me-1"></i> Password
+                                </label>
+
+                                <div class="input-group excel-input-group">
+                                    <span class="input-group-text bg-white">
+                                        <i class="bi bi-lock-fill text-excel-green"></i>
+                                    </span>
+
+                                    <input id="passwordInput" type="password" class="form-control excel-input"
+                                        [(ngModel)]="form.password" placeholder="Enter your password"
+                                        autocomplete="current-password" name="password" />
+
+                                    <button type="button" class="btn excel-eye-btn" title="Show/Hide" onclick="
+                                    const el = document.getElementById('passwordInput');
+                                    el.type = el.type === 'password' ? 'text' : 'password';
+                                    this.querySelector('i').className = el.type === 'password' ? 'bi bi-eye' : 'bi bi-eye-slash';
+                                    ">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- remember + forgot -->
+                            <div class="d-flex align-items-center justify-content-between mt-3">
+                                <a class="small login-link" href="javascript:void(0)">
+                                    Forgot password?
+                                </a>
+                            </div>
+
+                            <!-- login button -->
+                            <button type="submit" class="btn w-100 mt-3 excel-btn-save">
+                                @if(loading()) {
+                                <app-text-loading></app-text-loading>
+                                } @else {
+                                <i class="bi bi-box-arrow-in-right me-1"></i>
+                                Login
+                                }
+                            </button>
+
+                            <!-- footer note -->
+                            <div class="login-foot text-center mt-3 small text-muted">
+                                <i class="bi bi-info-circle me-1"></i>
+                                Contact admin if you cannot access your account.
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<app-toast></app-toast>
