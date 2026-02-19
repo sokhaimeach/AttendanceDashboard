@@ -1,150 +1,197 @@
-<div class="container py-4">
+<div class="container-fluid py-3 attendance-wrap class-wrap">
 
-    <!-- ========= Header ========= -->
-    <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3 mb-4">
-        <div>
-            <div class="d-flex align-items-center gap-2">
-                <span class="badge rounded-pill text-bg-success">
-                    <i class="bi bi-building me-1"></i> Class
+  <!-- ===================== EXCEL STYLE HEADER ===================== -->
+  <div class="card excel-header-sheet mb-3">
+
+    <!-- top bar -->
+    <div class="excel-header-top">
+      <div class="d-flex align-items-center gap-2">
+        <div class="excel-icon-cell">
+          <i class="bi bi-building-fill"></i>
+        </div>
+
+        <div class="excel-head-text">
+          <div class="excel-head-title">Class Management</div>
+          <div class="excel-head-subtitle">
+            Manage classes in your system
+          </div>
+        </div>
+      </div>
+
+      <!-- actions -->
+      <div class="d-flex gap-2 flex-wrap">
+        <button type="button" class="btn excel-btn excel-btn-save" data-bs-toggle="collapse"
+          data-bs-target="#createClassBox" aria-expanded="false" aria-controls="createClassBox">
+          <i class="bi bi-plus-circle me-1"></i>
+          New Class
+        </button>
+      </div>
+    </div>
+
+    <!-- create class -->
+    <div class="collapse border-top" id="createClassBox">
+      <div class="p-3">
+        <div class="excel-addbox">
+
+          <div class="d-flex align-items-start justify-content-between gap-3 flex-wrap">
+            <div>
+              <div class="excel-addbox-title">
+                <i class="bi bi-pencil-square me-1"></i> Create Class
+              </div>
+            </div>
+
+            <div class="excel-chip">
+              <i class="bi bi-lightning-charge-fill me-1"></i>
+              Quick create
+            </div>
+          </div>
+
+          <div class="row g-2 align-items-end mt-2">
+            <div class="col-12 col-md-8">
+              <label class="excel-field-label">Class Name</label>
+
+              <div class="input-group excel-input-group">
+                <span class="input-group-text bg-white">
+                  <i class="bi bi-tag-fill text-excel-green"></i>
                 </span>
-                <h4 class="mb-0 fw-bold">Class Management</h4>
-            </div>
-            <div class="text-muted small mt-1">
-                Manage classes in your system
-            </div>
-        </div>
 
-        <!-- Right side (optional quick info badge only) -->
-        <div class="d-flex align-items-center gap-2">
-            <span class="badge text-bg-light border">
-                <i class="bi bi-collection me-1"></i> Total: 4 Classes
+                <input type="text" class="form-control excel-input-bootstrap" placeholder="Class name..."
+                  [(ngModel)]="className" />
+
+                @if(className){
+                <button type="button" class="btn excel-clear-btn" title="Clear" (click)="className=''">
+                  <i class="bi bi-x-circle"></i>
+                </button>
+                }
+              </div>
+            </div>
+
+            <div class="col-12 col-md-4 d-grid">
+              <button type="button" class="btn excel-btn-save" (click)="createClass()">
+                @if(loadingCreate()) {
+                  <app-text-loading></app-text-loading>
+                } @else {
+                  <i class="bi bi-check2-circle me-1"></i>
+                  Save
+                }
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- search -->
+    <div class="p-3 border-top">
+      <div class="row g-2 align-items-end">
+        <div class="col-12 col-lg-12">
+          <div class="excel-filter-label">
+            <i class="bi bi-search me-1"></i> Search
+          </div>
+
+          <div class="input-group excel-input-group">
+            <span class="input-group-text bg-white">
+              <i class="bi bi-search text-excel-green"></i>
             </span>
+
+            <input type="text" class="form-control excel-input-bootstrap" placeholder="Search class name..."
+              [(ngModel)]="searchText" (input)="onSearch()" />
+
+            @if(searchText){
+            <button type="button" class="btn excel-clear-btn" title="Clear search" (click)="searchText=''; onSearch()">
+              <i class="bi bi-x-circle"></i>
+            </button>
+            }
+          </div>
         </div>
+
+      </div>
     </div>
 
-    <!-- ========= Stats Cards ========= -->
-    <div class="row g-3 mb-4">
-        <div class="col-12 col-md-6 col-xl-4">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body border rounded-3 d-flex align-items-center justify-content-between">
-                    <div>
-                        <div class="text-muted small">Total Classes</div>
-                        <div class="fw-bold display-6 mb-0">4</div>
-                        <div class="text-muted small">All classes available</div>
-                    </div>
-                    <div class="rounded-4 p-3 bg-primary-subtle text-primary">
-                        <i class="bi bi-grid-3x3-gap-fill fs-2"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
+  </div>
 
-        <div class="col-12 col-md-6 col-xl-4">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body border rounded-3 d-flex align-items-center justify-content-between">
-                    <div>
-                        <div class="text-muted small">Assigned Classes</div>
-                        <div class="fw-bold display-6 mb-0">3</div>
-                        <div class="text-muted small">SV13, SV23, SV35</div>
-                    </div>
-                    <div class="rounded-4 p-3 bg-success-subtle text-success">
-                        <i class="bi bi-check2-circle fs-2"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
+  <!-- ===================== CLASS GRID ===================== -->
+  <div class="row g-2">
 
-        <div class="col-12 col-md-6 col-xl-4">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body border rounded-3 d-flex align-items-center justify-content-between">
-                    <div>
-                        <div class="text-muted small">Unassigned</div>
-                        <div class="fw-bold display-6 mb-0">1</div>
-                        <div class="text-muted small">Class: unasign</div>
-                    </div>
-                    <div class="rounded-4 p-3 bg-warning-subtle text-warning">
-                        <i class="bi bi-exclamation-triangle fs-2"></i>
-                    </div>
-                </div>
+    @for(c of classes(); track c.class_id) {
+    <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
+
+      <div class="card class-card" [class.unassign]="c.class_name === 'unasign'">
+        <div class="card-body class-card-body">
+
+          <!-- LEFT -->
+          <div class="class-left">
+
+            <div class="class-icon">
+              <i class="bi" [ngClass]="c.class_name === 'unasign' ? 'bi-exclamation-triangle-fill' : 'bi-bank2'"></i>
             </div>
+
+            <div class="class-info">
+
+              <!-- inline edit (keep your logic) -->
+              @if(isEdit(c.class_id || -1)) {
+              <div class="class-edit-wrap">
+                <input type="text" class="form-control class-edit-input" [(ngModel)]="selectedClassName"
+                  placeholder="Class name..." />
+
+                <!-- cancel icon -->
+                <button type="button" class="btn class-cancel-btn" title="Cancel" (click)="cancelEdit()">
+                  <i class="bi bi-x"></i>
+                </button>
+              </div>
+              } @else {
+              <div class="class-name text-truncate">
+                @if(c.class_name !== 'unasign') { {{ c.class_name }} } @else { Unassigned }
+              </div>
+              }
+
+            </div>
+
+          </div>
+
+          <!-- RIGHT actions -->
+          <div class="class-actions ms-auto">
+
+            <button type="button" class="btn action-sq edit" [class.save]="isEdit(c.class_id || -1)"
+              [title]="isEdit(c.class_id || -1) ? 'Save' : 'Edit'"
+              (click)="isEdit(c.class_id || -1) ? onSaveEdit() : editClass(c)">
+              @if(isEdit(c.class_id || -1)) {
+              @if(loadingEdit()) {
+              <span class="mini-spinner" aria-hidden="true"></span>
+              } @else {
+              <i class="bi bi-check2-circle"></i>
+              }
+              } @else {
+              <i class="bi bi-pencil-square"></i>
+              }
+            </button>
+
+            <button type="button" class="btn action-sq delete" title="Delete" (click)="onDeleteClass(c)">
+              <i class="bi bi-trash"></i>
+            </button>
+
+          </div>
+
         </div>
+      </div>
+
     </div>
+    }
 
-    <!-- ========= Search Bar (Static) ========= -->
-    <div class="card border rounded-3 shadow-sm mb-4">
-        <div class="card-body">
-            <label class="form-label small text-muted mb-1">Search Class</label>
-            <div class="input-group">
-                <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
-                <input type="text" class="form-control" placeholder="Search by class name (e.g. SV23)" />
-                <button class="btn btn-outline-secondary" type="button">Clear</button>
-            </div>
-            <div class="text-muted small mt-2">Static UI (no filtering logic)</div>
+    @if(classes().length === 0) {
+    <div class="col-12">
+      <div class="card text-center py-5 excel-empty-box">
+        <div class="excel-empty-icon">
+          <i class="bi bi-folder-x"></i>
         </div>
+        <div class="excel-empty-title mt-2">No classes found</div>
+        <div class="text-secondary mt-1">Try clearing search or create a new class.</div>
+      </div>
     </div>
-
-    <!-- ========= Class Table ========= -->
-    <div class="card border rounded-3 shadow-sm">
-        <div class="card-header bg-white border-0 rounded-3 d-flex align-items-center justify-content-between">
-            <div class="fw-semibold">
-                <i class="bi bi-table me-2 text-success"></i>Class List
-            </div>
-            <div class="text-muted small">
-                Showing <span class="fw-semibold">{{classes().length}}</span> classes
-            </div>
-        </div>
-
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover table-bordered align-middle mb-0">
-                    <thead class="table-success position-sticky" style="top:0; z-index:1;">
-                        <tr>
-                            <th class="ps-3" style="width:70px;">No</th>
-                            <th style="width:120px;">Class ID</th>
-                            <th>Class Name</th>
-                            <th class="text-end pe-3" style="width:180px;">Actions</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-                        @for(c of classes(); track $index) {
-                        <tr>
-                            <td class="ps-3"><span class="badge text-bg-light border">{{$index + 1}}</span></td>
-                            <td class="fw-semibold">{{c.class_id}}</td>
-                            <td>
-                                @if(c.class_name !== 'unasign'){
-                                <div class="d-flex align-items-center gap-2">
-                                    <span class="badge rounded-pill text-bg-success">SV</span>
-                                    <div class="fw-semibold">{{c.class_name}}</div>
-                                </div>
-                                } @else {
-                                <div class="d-flex align-items-center gap-2">
-                                    <span class="badge rounded-pill text-bg-warning">!</span>
-                                    <div class="fw-semibold">unasign</div>
-                                    <span class="badge text-bg-warning-subtle text-warning border">Unassigned</span>
-                                </div>
-                                }
-                            </td>
-                            <td class="text-end pe-3">
-                                <div class="btn-group btn-group-sm">
-                                    <!-- <a href="#" class="btn btn-outline-secondary"><i class="bi bi-eye"></i></a> -->
-                                    <a href="#" class="btn btn-outline-success"><i class="bi bi-pencil-square"></i></a>
-                                    <a href="#" class="btn btn-outline-danger"><i class="bi bi-trash"></i></a>
-                                </div>
-                            </td>
-                        </tr>
-                        }
-
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- <div class="card-footer bg-white rounded-3 border-0">
-            <div class="text-muted small">
-                Static page layout • Bootstrap + Bootstrap Icons
-            </div>
-        </div> -->
-    </div>
+    }
+  </div>
 
 </div>
+
+<app-toast></app-toast>

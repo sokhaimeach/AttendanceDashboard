@@ -125,7 +125,7 @@ export class Student implements OnInit {
 
   // load all classes from backend (demo uses static data)
   loadClasses() {
-    this.classservice.getAllClasses().subscribe({
+    this.classservice.getAllClasses("").subscribe({
       next: (res) => {
         this.classes.set(res.data);
         console.log('Fetched classes:', this.classes());

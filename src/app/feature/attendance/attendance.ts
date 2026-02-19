@@ -181,7 +181,7 @@ export class Attendance implements OnInit, AfterViewInit {
   }
 
   private loadClasses(): void {
-    this.classService.getAllClasses().subscribe({
+    this.classService.getAllClasses("").subscribe({
       next: (res) => this.classes.set(res.data),
       error: () => console.error('Error load classes'),
     });

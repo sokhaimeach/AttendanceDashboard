@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ResponseInterface } from '../../models/response.model';
 
@@ -12,7 +12,22 @@ export class Classservice {
   constructor(private http: HttpClient) {}
 
   // get all classes
-  getAllClasses(): Observable<ResponseInterface> {
-    return this.http.get<ResponseInterface>(this.url);
+  getAllClasses(search: string): Observable<ResponseInterface> {
+    let params = new HttpParams();
+    params = params.set('search', search);
+
+    return this.http.get<ResponseInterface>(this.url, { params });
+  }
+
+  createClass(className: string): Observable<ResponseInterface> {
+    return this.http.post<ResponseInterface>(this.url, { class_name: className });
+  }
+
+  updateClass(classId: number, className: string): Observable<ResponseInterface> {
+    return this.http.put<ResponseInterface>(`${this.url}/${classId}`, { class_name: className });
+  }
+
+  deleteClass(classId: number): Observable<ResponseInterface> {
+    return this.http.delete<ResponseInterface>(`${this.url}/${classId}`);
   }
 }
