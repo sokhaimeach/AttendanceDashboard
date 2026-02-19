@@ -1,0 +1,407 @@
+<div class="container-fluid py-3 attendance-wrap account-wrap">
+
+    <!-- ===================== HEADER SHEET ===================== -->
+    <div class="card excel-header-sheet mb-3" *ngIf="teacher() as teacher">
+
+        <div class="excel-header-top">
+            <div class="d-flex align-items-center gap-2">
+                <div class="excel-icon-cell">
+                    <i class="bi bi-person-vcard-fill"></i>
+                </div>
+
+                <div class="excel-head-text">
+                    <div class="excel-head-title">Account</div>
+                    <div class="excel-head-subtitle">
+                        Manage profile and security settings
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- mini summary row -->
+        <div class="excel-subbar px-3 py-2 border-top">
+            <div class="d-flex flex-wrap gap-2 align-items-center justify-content-between">
+                <div class="excel-mini-summary">
+                    <span class="excel-mini-pill">
+                        <i class="bi bi-shield-lock-fill me-1"></i>
+                        Role :&nbsp; <span class="text-success fw-bold text-uppercase">{{ teacher?.role }}</span>
+                    </span>
+
+                    <span class="excel-mini-pill">
+                        <i class="bi bi-phone-fill me-1"></i>
+                        {{ teacher?.phone || '—' }}
+                    </span>
+
+                    <span class="excel-mini-pill" [class.pill-ok]="teacher?.is_active"
+                        [class.pill-warn]="!teacher?.is_active">
+                        <i class="bi" [ngClass]="teacher?.is_active ? 'bi-check2-circle' : 'bi-x-circle'"></i>
+                        <span class="ms-1">{{ teacher?.is_active ? 'Active' : 'Inactive' }}</span>
+                    </span>
+                </div>
+
+                <div class="text-muted small">
+                    ID: <span class="fw-semibold">{{ teacher?.teacher_id }}</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ===================== MAIN CONTENT ===================== -->
+    <div class="row g-3" *ngIf="teacher() as teacher">
+
+        <!-- LEFT: Profile card -->
+        <div class="col-12 col-lg-4">
+            <div class="card account-card">
+                <div class="card-body">
+
+                    <!-- BIG avatar -->
+                    <div class="profile-hero text-center">
+
+                        <div class="avatar-hero-wrap mx-auto">
+                            @if(previewImage || teacher?.image_url) {
+                            <img class="avatar-hero-img"
+                                [src]="previewImage || teacher?.image_url || 'assets/img/default-avatar.png'"
+                                alt="profile" />
+                            } @else {
+                            <div class="avatar-placeholder">
+                                <i class="bi bi-person-fill"></i>
+                            </div>
+                            }
+
+                            <!-- active dot -->
+                            <span class="avatar-badge" [class.on]="teacher?.is_active" [class.off]="!teacher?.is_active"
+                                title="Account status"></span>
+
+                            <!-- edit photo button (small icon) -->
+                            <button type="button" class="btn avatar-edit-btn" title="Change picture"
+                                (click)="fileInput.click()">
+                                <i class="bi bi-camera-fill"></i>
+                            </button>
+
+                            <!-- hidden input -->
+                            <input #fileInput type="file" class="d-none" accept="image/*"
+                                (change)="onSelectImage($event)" />
+
+                            @if(selectedImageFile) {
+                            <button type="button" class="btn avatar-edit-btn btn-save-image" title="Save"
+                                (click)="saveProfileImage()">
+                                @if(loadingEditImage()) {
+                                <span class="mini-spinner" aria-hidden="true"></span>
+                                } @else {
+                                <i class="bi bi-check2-circle"></i>
+                                }
+                            </button>
+
+                            <button type="button" class="btn avatar-edit-btn btn-cancel-image" title="Cancel"
+                                (click)="clearImage()">
+                                <i class="bi bi-x-lg"></i>
+                            </button>
+                            }
+                        </div>
+
+                        <!-- name + role only -->
+                        <div class="mt-3">
+                            <div class="acc-name-lg text-truncate">
+                                {{ teacher?.teachername_en || '—' }}
+                            </div>
+
+                            <div class="mt-2 d-flex justify-content-center">
+                                <span class="role-pill" [class.admin]="teacher?.role === 'admin'"
+                                    [class.teacher]="teacher?.role === 'teacher'">
+                                    <i class="bi"
+                                        [ngClass]="teacher?.role === 'admin' ? 'bi-person-gear' : 'bi-mortarboard-fill'"></i>
+                                    <span class="ms-1 text-uppercase">{{ teacher?.role }}</span>
+                                </span>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+
+
+        <!-- RIGHT: Settings -->
+        <div class="col-12 col-lg-8">
+
+            <!-- TABS -->
+            <div class="card excel-header-sheet">
+                <div class="card-body p-0">
+
+                    <ul class="nav nav-tabs account-tabs px-3 pt-3" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tabInfo" type="button"
+                                role="tab">
+                                <i class="bi bi-info-circle me-1"></i> Info
+                            </button>
+                        </li>
+
+                        @if(currentUserRole === 'admin'){
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabAdmin" type="button"
+                                role="tab">
+                                <i class="bi bi-gear me-1"></i> Admin Tools
+                            </button>
+                        </li>
+                        }
+
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabSecurity" type="button"
+                                role="tab">
+                                <i class="bi bi-shield-lock me-1"></i> Security
+                            </button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content p-3">
+
+                        <!-- ===================== INFO ===================== -->
+                        <div class="tab-pane fade show active" id="tabInfo" role="tabpanel">
+
+                            <div class="section-head">
+                                <div>
+                                    <div class="section-title-lg">Account Information</div>
+                                    <div class="section-sub">Quick view of stored data.</div>
+                                </div>
+                                <div class="chip-soft">
+                                    <i class="bi bi-database-fill me-1"></i> Data
+                                </div>
+                            </div>
+
+                            <div class="info-table mt-2">
+                                <div class="info-row">
+                                    <div class="info-k">Teacher ID</div>
+                                    <div class="info-v">{{ teacher?.teacher_id }}</div>
+                                </div>
+                                <div class="info-row">
+                                    <div class="info-k">English Name</div>
+                                    <div class="info-v">{{ teacher?.teachername_en }}</div>
+                                </div>
+                                <div class="info-row">
+                                    <div class="info-k">Khmer Name</div>
+                                    <div class="info-v kh-font">{{ teacher?.teachername_kh }}</div>
+                                </div>
+                                <div class="info-row">
+                                    <div class="info-k">Role</div>
+                                    <div class="info-v text-uppercase">{{ teacher?.role }}</div>
+                                </div>
+                                <div class="info-row">
+                                    <div class="info-k">Phone</div>
+                                    <div class="info-v">{{ teacher?.phone }}</div>
+                                </div>
+                                <div class="info-row">
+                                    <div class="info-k">Active</div>
+                                    <div class="info-v">
+                                        <span class="status-pill" [class.ok]="teacher?.is_active"
+                                            [class.bad]="!teacher?.is_active">
+                                            <i class="bi"
+                                                [ngClass]="teacher?.is_active ? 'bi-check2-circle' : 'bi-x-circle'"></i>
+                                            <span class="ms-1">{{ teacher?.is_active ? 'Active' : 'Inactive' }}</span>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- ===================== ADMIN TOOLS ===================== -->
+                        @if(currentUserRole === 'admin'){
+                        <div class="tab-pane fade" id="tabAdmin" role="tabpanel">
+
+                            <div class="section-head">
+                                <div>
+                                    <div class="section-title-lg">Admin Tools</div>
+                                    <div class="section-sub">Reset password & manage active status.</div>
+                                </div>
+                                <div class="chip-soft danger">
+                                    <i class="bi bi-person-gear me-1"></i> Admin
+                                </div>
+                            </div>
+
+                            <div class="row g-2 mt-2">
+
+                                <!-- Toggle Active -->
+                                <div class="col-12">
+                                    <div class="admin-tile">
+                                        <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap">
+                                            <div>
+                                                <div class="tile-title">
+                                                    <i class="bi bi-toggle2-on me-1"></i> Account Status
+                                                </div>
+                                                <div class="tile-sub">
+                                                    Enable or disable teacher access.
+                                                </div>
+                                            </div>
+
+                                            <div class="d-flex align-items-center gap-2">
+                                                <span class="status-pill" [class.ok]="teacher?.is_active"
+                                                    [class.bad]="!teacher?.is_active">
+                                                    <i class="bi"
+                                                        [ngClass]="teacher?.is_active ? 'bi-check2-circle' : 'bi-x-circle'"></i>
+                                                    <span class="ms-1">{{ teacher?.is_active ? 'Active' : 'Inactive'
+                                                        }}</span>
+                                                </span>
+
+                                                <button type="button" class="btn excel-btn excel-btn-outline"
+                                                    (click)="toggleActive()">
+                                                    @if(loadingUpdateStatus()) {
+                                                    <app-text-loading></app-text-loading>
+                                                    } @else {
+                                                    <i class="bi"
+                                                        [ngClass]="teacher?.is_active ? 'bi-toggle-on' : 'bi-toggle-off'"></i>
+                                                    <span class="ms-1">Toggle</span>
+                                                    }
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Reset Password -->
+                                <div class="col-12">
+                                    <div class="admin-tile danger">
+                                        <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap">
+                                            <div>
+                                                <div class="tile-title">
+                                                    <i class="bi bi-arrow-counterclockwise me-1"></i> Reset Password
+                                                </div>
+                                                <!-- <div class="tile-sub">
+                                                    Set teacher password back to default or random.
+                                                </div> -->
+                                            </div>
+
+                                            <div class="d-flex gap-2">
+                                                <div class="input-group excel-input-group">
+                                                    <span class="input-group-text bg-white"><i
+                                                            class="bi bi-shield-lock-fill text-excel-green"></i></span>
+                                                    <input [type]="showResetPass ? 'text':'password'"
+                                                        class="form-control excel-input-bootstrap"
+                                                        placeholder="New password" minlength="4"
+                                                        [(ngModel)]="resetPass" />
+                                                    <button class="btn excel-clear-btn" type="button"
+                                                        (click)="showResetPass=!showResetPass" title="Show/Hide">
+                                                        <i class="bi"
+                                                            [ngClass]="showResetPass ? 'bi-eye-slash' : 'bi-eye'"></i>
+                                                    </button>
+                                                </div>
+
+                                                <button type="button" class="btn excel-btn excel-btn-danger"
+                                                    (click)="resetPassword()">
+                                                    @if(loadingResetPassword()) {
+                                                    <app-text-loading></app-text-loading>
+                                                    } @else {
+                                                    <i class="bi bi-exclamation-triangle me-1"></i>
+                                                    Reset
+                                                    }
+                                                </button>
+                                            </div>
+
+                                        </div>
+
+                                        <div class="tiny-help mt-2">
+                                            <i class="bi bi-info-circle me-1"></i>
+                                            After reset, tell the teacher to change password immediately.
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </div>
+                        }
+
+                        <!-- ===================== SECURITY (Teacher) ===================== -->
+                        <div class="tab-pane fade" id="tabSecurity" role="tabpanel">
+
+                            <div class="section-head">
+                                <div>
+                                    <div class="section-title-lg">Change Password</div>
+                                    <div class="section-sub">Use at least 4 characters (your rule).</div>
+                                </div>
+                                <div class="chip-soft">
+                                    <i class="bi bi-lock-fill me-1"></i> Teacher
+                                </div>
+                            </div>
+
+                            <div class="row g-2 mt-2">
+                                <div class="col-12 col-md-6">
+                                    <label class="excel-field-label">Current Password</label>
+                                    <div class="input-group excel-input-group">
+                                        <span class="input-group-text bg-white"><i
+                                                class="bi bi-key-fill text-excel-green"></i></span>
+                                        <input [type]="showOldPass ? 'text':'password'"
+                                            class="form-control excel-input-bootstrap" placeholder="Current password"
+                                            [(ngModel)]="form.old_password" />
+                                        <button class="btn excel-clear-btn" type="button"
+                                            (click)="showOldPass=!showOldPass" title="Show/Hide">
+                                            <i class="bi" [ngClass]="showOldPass ? 'bi-eye-slash' : 'bi-eye'"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 col-md-6">
+                                    <label class="excel-field-label">New Password</label>
+                                    <div class="input-group excel-input-group">
+                                        <span class="input-group-text bg-white"><i
+                                                class="bi bi-shield-lock-fill text-excel-green"></i></span>
+                                        <input [type]="showNewPass ? 'text':'password'"
+                                            class="form-control excel-input-bootstrap" placeholder="New password"
+                                            minlength="4" [(ngModel)]="form.new_password" />
+                                        <button class="btn excel-clear-btn" type="button"
+                                            (click)="showNewPass=!showNewPass" title="Show/Hide">
+                                            <i class="bi" [ngClass]="showNewPass ? 'bi-eye-slash' : 'bi-eye'"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 col-md-6">
+                                    <label class="excel-field-label">Confirm Password</label>
+                                    <div class="input-group excel-input-group">
+                                        <span class="input-group-text bg-white"><i
+                                                class="bi bi-check2-circle text-excel-green"></i></span>
+                                        <input [type]="showConfirmPass ? 'text':'password'"
+                                            class="form-control excel-input-bootstrap"
+                                            placeholder="Confirm new password" minlength="4"
+                                            [(ngModel)]="form.confirm_password" />
+                                        <button class="btn excel-clear-btn" type="button"
+                                            (click)="showConfirmPass=!showConfirmPass" title="Show/Hide">
+                                            <i class="bi" [ngClass]="showConfirmPass ? 'bi-eye-slash' : 'bi-eye'"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 col-md-6 d-grid align-self-end">
+                                    <button type="button" class="btn excel-btn excel-btn-save"
+                                        (click)="changePassword()">
+                                        @if(loadingChangePassword()) {
+                                        <app-text-loading></app-text-loading>
+                                        } @else {
+                                        <i class="bi bi-check2-circle me-1"></i>
+                                        Change Password
+                                        }
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="note-box mt-3">
+                                <i class="bi bi-info-circle me-2"></i>
+                                If you forget your password, ask admin to reset it.
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<app-toast></app-toast>

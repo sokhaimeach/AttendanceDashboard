@@ -40,4 +40,16 @@ export class TeacherService {
   getTeacherReport(): Observable<TeacherReport> {
     return this.http.get<TeacherReport>(`${this.url}/report`);
   }
+
+  getTeacherById(id: number): Observable<ResponseInterface> {
+    return this.http.get<ResponseInterface>(`${this.url}/${id}`);
+  }
+
+  updateTeacherImage(id: number, formData: FormData): Observable<ResponseInterface> {
+    return this.http.put<ResponseInterface>(`${this.url}/${id}/image`, formData);
+  }
+
+  updateTeacherStatus(id: number, isActive: boolean): Observable<ResponseInterface> {
+    return this.http.put<ResponseInterface>(`${this.url}/${id}/status`, { is_active: isActive }); 
+  }
 }

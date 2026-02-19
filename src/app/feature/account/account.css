@@ -1,0 +1,541 @@
+/* page */
+.account-wrap { background:#f6f7fb; }
+
+/* excel sheet */
+.excel-header-sheet{
+  background:#fff;
+  border:1px solid rgba(0,0,0,0.25);
+  border-radius:8px;
+  overflow:hidden;
+}
+
+.excel-header-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  padding:10px 12px;
+  background:#e7e6e6;
+}
+
+.excel-icon-cell{
+  width:40px;
+  height:40px;
+  border:1px solid rgba(0,0,0,0.25);
+  background:#fff;
+  display:grid;
+  place-items:center;
+  border-radius:6px;
+  color:#107c41;
+  font-size:18px;
+}
+
+.excel-head-title{
+  text-transform:uppercase;
+  font-weight:700;
+  font-size:16px;
+  color:#111;
+  line-height:1.1;
+}
+.excel-head-subtitle{
+  font-size:12px;
+  font-weight:600;
+  color:#374151;
+  margin-top:2px;
+}
+
+.border-top{ border-top:1px solid rgba(0,0,0,0.25)!important; }
+.text-excel-green{ color:#107c41; }
+
+/* buttons */
+.excel-btn{
+  height:40px;
+  border-radius:6px;
+  font-weight:600;
+  padding:0 14px;
+  font-size:13px;
+  border:1px solid rgba(0,0,0,0.25);
+}
+.excel-btn-save{
+  height:38px;
+  background:#107c41;
+  color:#fff;
+}
+.excel-btn-save:hover{ filter:brightness(0.95); color:#fff; }
+
+.excel-btn-outline{
+  height:38px;
+  background:#fff;
+  color:#111;
+}
+.excel-btn-outline:hover{ background:#f3f4f6; }
+
+.excel-btn-lite{
+  height:38px;
+  background:#fff;
+  color:#111;
+  padding:0 12px;
+}
+.excel-btn-lite:hover{ background:#f3f4f6; }
+
+.excel-btn-danger{
+  height:38px;
+  width: 130px;
+  background:#dc2626;
+  color:#fff;
+}
+.excel-btn-danger:hover{ filter:brightness(0.95); color:#fff; }
+
+.excel-subbar{ background:#fff; }
+
+.excel-mini-summary{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  align-items:center;
+}
+.excel-mini-pill{
+  border:1px solid rgba(0,0,0,0.18);
+  background:#fff;
+  border-radius:999px;
+  padding:6px 10px;
+  font-size:12px;
+  font-weight:600;
+  color:#111;
+  display:inline-flex;
+  align-items:center;
+}
+.excel-mini-pill i{ color:#107c41; }
+
+.pill-ok i{ color:#107c41 !important; }
+.pill-warn i{ color:#dc2626 !important; }
+
+/* account cards */
+.account-card{
+  border:1px solid rgba(0,0,0,0.25);
+  border-radius:12px;
+  overflow:hidden;
+}
+
+.divider{
+  height:1px;
+  background: rgba(0,0,0,0.18);
+}
+
+/* avatar */
+.avatar-wrap{
+  width:74px;
+  height:74px;
+  border-radius:16px;
+  border:1px solid rgba(0,0,0,0.25);
+  overflow:hidden;
+  position:relative;
+  flex:0 0 auto;
+  background:#fff;
+}
+.avatar-img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+.avatar-badge{
+  position:absolute;
+  bottom:6px;
+  right:6px;
+  width:12px;
+  height:12px;
+  border-radius:999px;
+  border:2px solid #fff;
+  background:#dc2626;
+}
+.avatar-badge.on{ background:#107c41; }
+.avatar-badge.off{ background:#dc2626; }
+
+.avatar-placeholder {
+    width: 100%;
+    height: 100%;
+    background-color: rgba(16,124,65,0.25);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.avatar-placeholder i {
+    font-size: 200px;
+    color: #0d6d38;
+}
+
+.acc-name{
+  font-weight:600;
+  font-size:16px;
+  color:#111;
+  line-height:1.1;
+}
+.acc-sub{
+  font-weight:600;
+  font-size:13px;
+  color:#374151;
+  margin-top:2px;
+}
+
+/* pills */
+.role-pill{
+  border:1px solid rgba(0,0,0,0.18);
+  background:#fff;
+  border-radius:999px;
+  padding:6px 10px;
+  font-size:12px;
+  font-weight:700;
+  color:#111;
+  display:inline-flex;
+  align-items:center;
+}
+.role-pill.teacher{ background:#eaf3ec; border-color: rgba(16,124,65,0.25); color:#107c41; }
+.role-pill.admin{ background:#eef2ff; border-color: rgba(37,99,235,0.25); color:#2563eb; }
+
+.small-pill{
+  border:1px solid rgba(0,0,0,0.18);
+  background:#fff;
+  border-radius:999px;
+  padding:6px 10px;
+  font-size:12px;
+  font-weight:600;
+  color:#111;
+  display:inline-flex;
+  align-items:center;
+}
+
+/* info grid */
+.acc-info-grid{
+  display:grid;
+  grid-template-columns: 90px 1fr;
+  gap:10px 12px;
+  align-items:center;
+}
+.acc-label{
+  font-size:11px;
+  font-weight:600;
+  color:#111;
+}
+.acc-value{
+  font-size:12px;
+  font-weight:600;
+  color:#374151;
+  border:1px solid rgba(0,0,0,0.18);
+  background:#fff;
+  padding:7px 10px;
+  border-radius:8px;
+}
+
+/* status pill */
+.status-pill{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  height:28px;
+  padding:0 10px;
+  border-radius:999px;
+  border:1px solid rgba(0,0,0,0.25);
+  background:#fff;
+  font-weight:700;
+  font-size:12px;
+  color:#111;
+}
+.status-pill.ok{ background:#eaf3ec; color:#107c41; border-color: rgba(16,124,65,0.25); }
+.status-pill.bad{ background:#fff1f2; color:#dc2626; border-color: rgba(220,38,38,0.25); }
+
+/* section titles */
+.section-title{
+  font-size:12px;
+  font-weight:600;
+  color:#111;
+}
+.section-title i{ color:#107c41; }
+
+.section-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+}
+.section-title-lg{
+  font-weight:700;
+  font-size:14px;
+  color:#111;
+}
+.section-sub{
+  font-size:12px;
+  font-weight:600;
+  color:#6b7280;
+  margin-top:2px;
+}
+
+.chip-soft{
+  border:1px solid rgba(0,0,0,0.18);
+  background:#fff;
+  border-radius:999px;
+  padding:6px 10px;
+  font-size:11px;
+  font-weight:700;
+  color:#111;
+  display:inline-flex;
+  align-items:center;
+}
+.chip-soft i{ color:#107c41; }
+.chip-soft.danger{ background:#fff1f2; border-color: rgba(220,38,38,0.25); color:#dc2626; }
+.chip-soft.danger i{ color:#dc2626; }
+
+/* tabs */
+.account-tabs{
+  border-bottom:1px solid rgba(0,0,0,0.18);
+}
+.account-tabs .nav-link{
+  font-weight:700;
+  font-size:12px;
+  color:#111;
+  border:1px solid rgba(0,0,0,0.18);
+  border-bottom:0;
+  margin-right:8px;
+  border-radius:10px 10px 0 0;
+  background:#f8fafc;
+}
+.account-tabs .nav-link.active{
+  background:#fff;
+  border-color: rgba(16,124,65,0.35);
+  color:#107c41;
+}
+
+/* inputs focus like your subject */
+.excel-field-label {
+    font-size: 12px;
+    font-weight: 600;
+}
+.excel-input-group{
+  border:1px solid rgba(0,0,0,0.25);
+  border-radius:6px;
+  overflow:hidden;
+  background:#fff;
+}
+.excel-input-bootstrap{
+  border:0 !important;
+  box-shadow:none !important;
+  font-size:14px;
+  font-weight:600;
+}
+.excel-input-group .input-group-text{ border:0; }
+.excel-input-group:focus-within{
+  border-color: rgba(16,124,65,0.6);
+  box-shadow: 0 0 0 3px rgba(16,124,65,0.10);
+}
+.excel-clear-btn{
+  border:0;
+  background:#fff;
+  padding:0 10px;
+}
+.excel-clear-btn i{ color:#6b7280; }
+.excel-clear-btn:hover i{ color:#107c41; }
+
+/* admin tiles */
+.admin-tile{
+  border:1px solid rgba(0,0,0,0.18);
+  border-radius:12px;
+  background:#fff;
+  padding:12px;
+}
+.admin-tile.danger{
+  background: linear-gradient(180deg, #fff 0%, #fff1f2 100%);
+  border-color: rgba(220,38,38,0.25);
+}
+.tile-title{
+  font-size:13px;
+  font-weight:700;
+  color:#111;
+}
+.tile-title i{ color:#107c41; }
+.admin-tile.danger .tile-title i{ color:#dc2626; }
+.tile-sub{
+  font-size:12px;
+  font-weight:600;
+  color:#6b7280;
+  margin-top:2px;
+}
+.tiny-help{
+  font-size:11px;
+  font-weight:600;
+  color:#6b7280;
+}
+
+/* note box */
+.note-box{
+  border:1px solid rgba(16,124,65,0.18);
+  background:#eaf3ec;
+  color:#107c41;
+  border-radius:10px;
+  padding:10px 12px;
+  font-weight:600;
+  font-size:12px;
+}
+
+/* info table */
+.info-table{
+  border:1px solid rgba(0,0,0,0.18);
+  border-radius:12px;
+  overflow:hidden;
+}
+.info-row{
+  display:grid;
+  grid-template-columns: 140px 1fr;
+  border-top:1px solid rgba(0,0,0,0.10);
+}
+.info-row:first-child{ border-top:0; }
+.info-k{
+  padding:10px 12px;
+  background:#f8fafc;
+  font-weight:700;
+  font-size:12px;
+  color:#111;
+  border-right:1px solid rgba(0,0,0,0.10);
+}
+.info-v{
+  padding:10px 12px;
+  font-weight:600;
+  font-size:12px;
+  color:#374151;
+}
+
+/* mini spinner */
+.mini-spinner{
+  width:14px;
+  height:14px;
+  border-radius:999px;
+  border:2px solid rgba(255,255,255,0.55);
+  border-top-color:#fff;
+  animation: spin .8s linear infinite;
+}
+@keyframes spin{ to{ transform: rotate(360deg); } }
+
+/* kh font */
+.kh-font{ font-family: var(--kh-body); }
+
+
+
+/* ===== Profile hero (big avatar) ===== */
+.profile-hero { 
+    padding: 6px 4px 2px; 
+    width: 100%;
+}
+
+.avatar-hero-wrap{
+  width: 300px;
+  height: 300px;
+  border-radius: 18px;
+  border: 1px solid rgba(0,0,0,0.25);
+  overflow: hidden;
+  position: relative;
+  background: #fff;
+  box-shadow: 0 10px 22px rgba(0,0,0,0.06);
+}
+
+.avatar-hero-img{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* keep your badge classes, but these positions fit big avatar nicely */
+.avatar-hero-wrap .avatar-badge{
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  border: 2px solid #fff;
+  background: #dc2626;
+}
+.avatar-hero-wrap .avatar-badge.on{ background:#107c41; }
+.avatar-hero-wrap .avatar-badge.off{ background:#dc2626; }
+
+/* small edit icon button on picture */
+.avatar-edit-btn{
+  position: absolute;
+  top: 10px;
+  right: 10px;
+
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+
+  border: 1px solid rgba(0,0,0,0.25);
+  background: rgba(255,255,255,0.92);
+  color: #111;
+
+  display: grid;
+  place-items: center;
+  padding: 0;
+
+  transition: transform .08s ease, box-shadow .12s ease, background .12s ease;
+}
+
+.avatar-edit-btn:hover{
+  transform: translateY(-1px);
+  box-shadow: 0 10px 18px rgba(0,0,0,0.10);
+  background: #fff;
+}
+
+.avatar-edit-btn:active{
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+.avatar-edit-btn i{
+  font-size: 14px;
+  color: #107c41; /* excel green */
+}
+
+.btn-save-image {
+    background-color: #107c41;
+    top: 50px;
+    right: 10px;
+}
+
+.btn-save-image i {
+    color: #fff;
+}
+
+.btn-save-image:hover {
+    background-color: #0d6d38;
+}
+
+.btn-cancel-image {
+    top: 90px;
+    
+}
+
+/* bigger name, not too black */
+.acc-name-lg{
+  font-weight: 700;
+  font-size: 18px;
+  color: #111;
+  line-height: 1.15;
+}
+
+
+
+/* mini spinner (replaces big svg) */
+.mini-spinner {
+    width: 14px;
+    height: 14px;
+    border-radius: 999px;
+    border: 2px solid rgba(255, 255, 255, 0.55);
+    border-top-color: #fff;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
