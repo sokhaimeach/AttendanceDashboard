@@ -128,7 +128,6 @@ export class Student implements OnInit {
     this.classservice.getAllClasses("").subscribe({
       next: (res) => {
         this.classes.set(res.data);
-        console.log('Fetched classes:', this.classes());
       },
       error: (err) => {
         console.error('Error fetching classes:', err);

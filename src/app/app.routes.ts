@@ -9,7 +9,8 @@ export const routes: Routes = [
     {path: 'auth', canActivate: [loggedInGuard], loadComponent: () => import('./layouts/auth.layout/auth.layout').then(c => c.AuthLayout)},
     {path: 'admin', canActivate: [authGuard], loadComponent: () => import('./layouts/admin-layout/admin-layout').then(c => c.AdminLayout),
         children: [
-            {path: '', redirectTo: 'students', pathMatch: 'full' },
+            {path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+            {path: 'dashboard', canActivate: [roleGuard], data: { roles: ['admin', 'teacher']}, loadComponent: () => import('./feature/dashboard/dashboard').then(c => c.Dashboard)},
             {path: 'students', canActivate: [roleGuard], data: { roles: ['admin']}, loadComponent: () => import('./feature/student/student').then(c => c.Student)},
             {path: 'record', component: RecordAttendance},
             {path: 'classes', canActivate: [roleGuard], data: { roles: ['admin']}, loadComponent: () => import('./feature/class/class').then(c => c.Class)},

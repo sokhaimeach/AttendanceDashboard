@@ -1,0 +1,94 @@
+<div class="container py-4 attendance-dashboard">
+    <!-- Header -->
+    <div class="card excel-header-sheet">
+        <div class="excel-header-top">
+
+            <div class="d-flex align-items-center gap-2">
+                <div class="excel-icon-cell">
+                    <i class="bi bi-speedometer2"></i>
+                </div>
+
+                <div class="excel-head-text">
+                    <div class="excel-head-title">Attendance Dashboard</div>
+                    <div class="excel-head-subtitle">Overview of attendance status and trends</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="excel-divider"></div>
+
+        <!-- KPI Cards -->
+        <div class="row g-3 mb-3 mx-2 mt-1">
+            @for(k of kpiss(); track $index) {
+            <div class="col-12 col-md-6 col-xl-3">
+                <div class="card dash-card">
+                    <div class="card-body">
+                        <div class="d-flex align-items-start justify-content-between">
+                            <div>
+                                <div class="text-muted small">{{k.title}}</div>
+                                <div class="fs-4 fw-bold">{{ k.total }}</div>
+                            </div>
+                            <div class="dash-icon bg-{{k.bg_color}} {{k.text_color}}">
+                                <i class="bi {{k.icon}}"></i>
+                            </div>
+                        </div>
+                        <div class="mt-2 small">
+                            <span class="badge bg-{{k.bg_color}} border border-{{k.bg_color}} {{k.text_color}}">
+                                {{ k.text }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            }
+        </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="row g-3 mt-2">
+        <div class="col-12 col-lg-12">
+            <div class="card shadow-sm dash-card" style="overflow: hidden;">
+                <div class="row card-header bg-white d-flex align-items-center justify-content-between">
+                    <div class="col-12 col-lg-6">
+                        <div class="fw-semibold">Attendance Weekly</div>
+                        <div class="text-muted small">Daily status totals</div>
+                    </div>
+
+                    <div class="small text-muted d-flex col-12 col-lg-6 justify-content-end gap-2">
+                        <!-- Date -->
+                        <div class="c">
+                            <div class="excel-filter-label">
+                                <i class="bi bi-calendar-range-fill"></i> Start date
+                            </div>
+
+                            <input type="date" [(ngModel)]="selectDate" class="excel-control" (change)="onDateChange()">
+                        </div>
+
+                        <!-- Class -->
+                        <div class="c">
+                            <div class="excel-filter-label">
+                                <i class="bi bi-bank me-1"></i> Class
+                            </div>
+
+                            <select class="excel-control select-class" [(ngModel)]="selectClassId"
+                                (change)="onClassChange()">
+                                <option [value]="0">All</option>
+                                @for(c of classes(); track $index){
+                                <option [value]="c.class_id">{{c.class_name}}</option>
+                                }
+                            </select>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="chart-box">
+                        <canvas #chartCanvas></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<app-toast></app-toast>
