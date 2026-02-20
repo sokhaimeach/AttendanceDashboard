@@ -148,12 +148,14 @@
                         </li>
                         }
 
+                        @if(currentUserId === teacher.teacher_id) {
                         <li class="nav-item" role="presentation">
                             <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabSecurity" type="button"
                                 role="tab">
                                 <i class="bi bi-shield-lock me-1"></i> Security
                             </button>
                         </li>
+                    }
                     </ul>
 
                     <div class="tab-content p-3">
@@ -314,6 +316,7 @@
                         }
 
                         <!-- ===================== SECURITY (Teacher) ===================== -->
+                        @if(teacher.teacher_id === currentUserId) {
                         <div class="tab-pane fade" id="tabSecurity" role="tabpanel">
 
                             <div class="section-head">
@@ -392,6 +395,7 @@
                             </div>
 
                         </div>
+                        }
 
                     </div>
 

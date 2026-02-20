@@ -7,4 +7,21 @@
 
   --kh-body: "Noto Sans Khmer", system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
   --kh-title: "Koulen", "Noto Sans Khmer", sans-serif;
+
+  --excel-green:#107c41;
+  --excel-gray:#e7e6e6;
+  --ink:#111;
+  --muted:#6b7280;
+  --line:rgba(0,0,0,0.18);
+  --bg:#f6f7fb;
+
+  --sb-bg:#0f172a;
+  --sb-panel:#0b1220;
+  --sb-hover:rgba(255,255,255,0.06);
+  --sb-active:rgba(16,124,65,0.16);
+
+  --sidebar-w: 270px;
+  --sidebar-w-collapsed: 78px;
 }
+
+

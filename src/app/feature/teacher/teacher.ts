@@ -7,10 +7,11 @@ import { Toast } from '../../shared/toast/toast';
 import { FormsModule } from '@angular/forms';
 import { Loading } from '../../shared/loading/loading';
 import { TextLoading } from '../../shared/text-loading/text-loading';
+import { RouterLink } from "@angular/router";
 
 @Component({
   selector: 'app-teacher',
-  imports: [CommonModule, Toast, FormsModule, Loading, TextLoading],
+  imports: [CommonModule, Toast, FormsModule, Loading, TextLoading, RouterLink],
   templateUrl: './teacher.html',
   styleUrl: './teacher.css',
 })

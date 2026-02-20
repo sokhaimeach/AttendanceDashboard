@@ -7,6 +7,7 @@ import { ToastService } from '../../shared/toast/toast.service';
 import { TeacherService } from '../../services/teacher/teacher.service';
 import { TextLoading } from '../../shared/text-loading/text-loading';
 import { AuthService } from '../../services/auth/auth.service';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-account',
@@ -19,6 +20,7 @@ export class Account implements OnInit {
   protected readonly teacherService = inject(TeacherService);
   protected readonly authService = inject(AuthService);
   protected readonly toastService = inject(ToastService);
+  protected readonly route = inject(ActivatedRoute);
 
   // variables
   teacher = signal<TeacherInterface | any>({
@@ -29,7 +31,9 @@ export class Account implements OnInit {
     role: 'teacher',
     is_active: true,
   });
+  // logged in user
   currentUserRole: 'teacher' | 'admin' = 'teacher';
+  currentUserId: number = 0;
 
   // image variable
   selectedImageFile: File | null = null;
@@ -55,16 +59,19 @@ export class Account implements OnInit {
   loadingChangePassword = signal<boolean>(false);
 
   ngOnInit(): void {
-    this.loadTeacherInfo();
+    this.route.paramMap.subscribe(params => {
+      const id = params.get('id');
+      this.currentUserRole = this.authService.getTeacherProfile().role;
+      this.currentUserId = this.authService.getTeacherProfile().teacher_id || 0;
+      this.loadTeacherInfo(Number(id));
+    });
   }
 
   // API calls
-  loadTeacherInfo() {
-    this.teacherService.getTeacherById(1).subscribe({
+  loadTeacherInfo(id: number) {
+    this.teacherService.getTeacherById(id).subscribe({
       next: (res) => {
         this.teacher.set(res.data);
-        this.currentUserRole = this.teacher().role;
-        console.log('Fetched teacher info:', this.teacher());
       },
       error: (err) => {
         console.error('Error fetching teacher info:', err);
@@ -80,7 +87,7 @@ export class Account implements OnInit {
       .subscribe({
         next: (res) => {
           setTimeout(() => {
-            this.loadTeacherInfo();
+            this.loadTeacherInfo(this.teacher().teacher_id);
             this.toastService.showToast(res.message, 'success');
             this.loadingUpdateStatus.set(false);
           }, 1000);
@@ -200,7 +207,7 @@ export class Account implements OnInit {
         next: (res) => {
           setTimeout(() => {
             this.toastService.showToast(res.message, 'success');
-            this.loadTeacherInfo();
+            this.loadTeacherInfo(this.teacher().teacher_id);
             this.clearImage();
             this.loadingEditImage.set(false);
           }, 2000);

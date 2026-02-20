@@ -226,9 +226,9 @@
 
                             <td class="text-center col-action">
                                 <div class="btn-group btn-group-sm action-group" role="group">
-                                    <button type="button" class="btn action-sq view" title="View Account">
+                                    <a class="btn action-sq view" title="View Account" [routerLink]="['/admin/account', t.teacher_id]">
                                         <i class="bi bi-person-vcard"></i>
-                                    </button>
+                                    </a>
                                     <button type="button" class="btn action-sq edit" title="Edit" data-bs-toggle="modal" data-bs-target="#teacherModal" (click)="openEditModal(t)">
                                         <i class="bi bi-pencil-square"></i>
                                     </button>

@@ -1,87 +1,189 @@
-<div class="app-wrapper">
-    <!--begin::Header-->
-    <nav class="app-header navbar navbar-expand bg-body shadow-sm">
-        <div class="container-fluid">
-            <!--begin::Start Navbar Links-->
-            <ul class="navbar-nav">
-                <li class="nav-item">
-                    <a class="nav-link" data-lte-toggle="sidebar" role="button">
-                        <i class="bi bi-list"></i>
-                    </a>
-                </li>
-            </ul>
-            <!--begin::End Navbar Links-->
-            <ul class="navbar-nav ms-auto">
-                <!-- Notifications and User Profile -->
-                <li class="nav-item dropdown user-menu">
-                    <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
-                        <img src="https://ui-avatars.com/api/?name=Hul+Makara&background=6366f1&color=fff" class="user-image rounded-circle shadow" alt="User Image" />
-                        <span class="d-none d-md-inline fw-bold ms-2">Hul Makara</span>
-                    </a>
-                </li>
-            </ul>
-        </div>
-    </nav>
-    <!--end::Header-->
-    <!--begin::Sidebar-->
-    <aside class="app-sidebar bg-dark shadow-lg" data-bs-theme="dark">
+<div class="app-shell" [class.sb-collapsed]="isSidebarCollapsed">
+
+    <!-- ===================== SIDEBAR ===================== -->
+    <aside class="app-sidebar shadow-sm">
+
+        <!-- brand -->
         <div class="sidebar-brand">
             <a routerLink="/" class="brand-link">
-                <span class="brand-icon">🎓</span>
-                <span class="brand-text fw-bold ms-2">AttendEase</span>
+                <span class="brand-icon">
+                    <i class="bi bi-mortarboard-fill"></i>
+                </span>
+                <span class="brand-text">AttendEase</span>
             </a>
         </div>
+
         <div class="sidebar-wrapper">
-            <nav class="mt-3">
-                <ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" role="navigation">
+
+            <!-- user mini -->
+            <div class="sidebar-user">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="sb-avatar-wrap">
+                        @if(teacher().image_url) {
+                        <div class="sb-avatar">
+                            <img [src]="teacher().image_url" class="sb-avatar" alt="User" />
+                        </div>
+                        } @else {
+                        <div class="sb-avatar">
+                            <i class="bi bi-person-fill"></i>
+                        </div>
+                        }
+                        <span class="sb-dot on"></span>
+                    </div>
+
+                    <!-- hide name/role when collapsed -->
+                    <div class="min-w-0 sb-user-text">
+                        <div class="sb-name text-truncate">{{teacher().teachername_en}}</div>
+                        <div class="sb-role text-truncate">{{teacher().role}}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sb-divider"></div>
+
+            <!-- menu -->
+            <nav class="">
+                <ul class="nav sidebar-menu flex-column" role="navigation">
+
+                    <!-- <li class="sb-section">Overview</li> -->
+
                     <li class="nav-item">
-                        <a routerLink="/dashboard" routerLinkActive="active" class="nav-link">
-                            <i class="nav-icon bi bi-speedometer2 text-primary"></i>
-                            <p>Dashboard</p>
+                        <a routerLink="/admin/dashboard" routerLinkActive="active" class="nav-link sb-link">
+                            <span class="sb-ic"><i class="bi bi-speedometer2"></i></span>
+                            <span class="sb-text">Dashboard</span>
                         </a>
                     </li>
-                    <li class="nav-header text-uppercase opacity-50 small ms-3 mt-2">Management</li>
+
+                    <!-- <li class="sb-section mt-2">Records</li> -->
+
                     <li class="nav-item">
-                        <a routerLink="/admin-layout/students" routerLinkActive="active" class="nav-link">
-                            <i class="nav-icon bi bi-people-fill text-info"></i>
-                            <p>Students</p>
+                        <a routerLink="/admin/attendance" routerLinkActive="active" class="nav-link sb-link">
+                            <span class="sb-ic"><i class="bi bi-calendar-check-fill"></i></span>
+                            <span class="sb-text">Attendance</span>
                         </a>
                     </li>
+
+                    <!-- <li class="sb-section mt-2">Management <span class="admin-manage">Admin Only</span></li> -->
+
+                    @if(teacher().role === 'admin') {
                     <li class="nav-item">
-                        <a routerLink="/teachers" routerLinkActive="active" class="nav-link">
-                            <i class="nav-icon bi bi-person-badge-fill text-warning"></i>
-                            <p>Teachers</p>
+                        <a routerLink="/admin/students" routerLinkActive="active" class="nav-link sb-link">
+                            <span class="sb-ic"><i class="bi bi-people-fill"></i></span>
+                            <span class="sb-text">Students</span>
                         </a>
                     </li>
+
                     <li class="nav-item">
-                        <a routerLink="/admin-layout/classes" routerLinkActive="active" class="nav-link">
-                            <i class="nav-icon bi bi-door-open-fill text-success"></i>
-                            <p>Classes</p>
+                        <a routerLink="/admin/teachers" routerLinkActive="active" class="nav-link sb-link">
+                            <span class="sb-ic"><i class="bi bi-person-badge-fill"></i></span>
+                            <span class="sb-text">Teachers</span>
                         </a>
                     </li>
+
                     <li class="nav-item">
-                        <a routerLink="/subjects" routerLinkActive="active" class="nav-link">
-                            <i class="nav-icon bi bi-book-half text-danger"></i>
-                            <p>Subjects</p>
+                        <a routerLink="/admin/classes" routerLinkActive="active" class="nav-link sb-link">
+                            <span class="sb-ic"><i class="bi bi-building-fill"></i></span>
+                            <span class="sb-text">Classes</span>
                         </a>
                     </li>
-                    <li class="nav-header text-uppercase opacity-50 small ms-3 mt-2">Records</li>
+
                     <li class="nav-item">
-                        <a routerLink="/attendance" routerLinkActive="active" class="nav-link">
-                            <i class="nav-icon bi bi-calendar-check-fill text-primary"></i>
-                            <p>Attendance</p>
+                        <a routerLink="/admin/subjects" routerLinkActive="active" class="nav-link sb-link">
+                            <span class="sb-ic"><i class="bi bi-journal-bookmark-fill"></i></span>
+                            <span class="sb-text">Subjects</span>
                         </a>
                     </li>
+                }
+
                 </ul>
             </nav>
+
+            <!-- footer hint -->
+            <div class="sb-footer mt-auto">
+                <div class="sb-footer-box">
+                    <i class="bi bi-shield-check me-1"></i>
+                    <span class="sb-footer-text">Secure • Role-based access</span>
+                </div>
+            </div>
         </div>
     </aside>
-    <!--end::Sidebar-->
-    <!--begin::App Main-->
-    <main class="app-main bg-light">
-        <div class="content-wrapper p-4">
-            <router-outlet></router-outlet>
-        </div>
-    </main>
-    <!--end::App Main-->
+
+    <!-- ===================== RIGHT SIDE ===================== -->
+    <div class="app-content">
+
+        <!-- ===================== HEADER / NAVBAR ===================== -->
+        <nav class="app-header navbar navbar-expand bg-body shadow-sm" [class.collapsed]="isSidebarCollapsed">
+            <div class="container-fluid">
+
+                <!-- left -->
+                <div class="d-flex align-items-center gap-2">
+                    <button class="btn nav-icon-btn" type="button" (click)="toggleSidebar()">
+                        <i class="bi bi-list"></i>
+                    </button>
+
+                    <!-- page title placeholder -->
+                    <div class="d-none d-md-block">
+                        <div class="app-title">AttendEase</div>
+                        <div class="app-subtitle">Attendance Dashboard</div>
+                    </div>
+                </div>
+
+                <!-- right -->
+                <div class="nav-item dropdown">
+                    <button type="button" class="btn p-0 border-0 bg-transparent dropdown-toggle"
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                        <div class="user-pill">
+                            <div class="user-avatar-wrap">
+                                @if(teacher().image_url) {
+                                <div class="sb-avatar">
+                                    <img [src]="teacher().image_url" alt="User" />
+                                </div>
+                                } @else {
+                                <div class="sb-avatar">
+                                    <i class="bi bi-person-fill"></i>
+                                </div>
+                                }
+                                <span class="user-dot on"></span>
+                            </div>
+
+                            <div class="d-none d-md-block text-start">
+                                <div class="user-name">{{teacher().teachername_en}}</div>
+                                <div class="user-role">{{teacher().role}}</div>
+                            </div>
+
+                            <i class="bi bi-chevron-down d-none d-md-inline ms-2 small text-muted"></i>
+                        </div>
+                    </button>
+
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm p-2 user-menu-dd">
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center gap-2 rounded-2" [routerLink]="['/admin/account', teacher().teacher_id]">
+                                <i class="bi bi-person-circle text-excel-green"></i>
+                                <span>My Account</span>
+                            </a>
+                        </li>
+
+                        <li>
+                            <hr class="dropdown-divider my-2" />
+                        </li>
+                        <li>
+                            <button class="dropdown-item d-flex align-items-center gap-2 rounded-2 text-danger" (click)="onLogout()">
+                                <i class="bi bi-box-arrow-right"></i>
+                                <span>Logout</span>
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+
+            </div>
+        </nav>
+
+        <!-- ===================== MAIN ===================== -->
+        <main class="app-main" [class.collapsedMain]="isSidebarCollapsed">
+            <div class="content-wrapper px-2 py-4 mt-5">
+                <router-outlet></router-outlet>
+            </div>
+        </main>
+
+    </div>
 </div>
