@@ -17,7 +17,7 @@
 
             <!-- user mini -->
             <div class="sidebar-user">
-                <div class="d-flex align-items-center gap-2">
+                <div class="d-flex align-items-center gap-2" role="button" [routerLink]="['/admin/account', teacher().teacher_id]">
                     <div class="sb-avatar-wrap">
                         @if(teacher().image_url) {
                         <div class="sb-avatar">

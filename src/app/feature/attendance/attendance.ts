@@ -414,6 +414,10 @@ export class Attendance implements OnInit, AfterViewInit {
       });
   }
 
+  printReport() {
+    window.print();
+  }
+
   // ---------------
   // Modal
   // ---------------

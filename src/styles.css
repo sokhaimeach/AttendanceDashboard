@@ -24,4 +24,96 @@
   --sidebar-w-collapsed: 78px;
 }
 
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 8mm;
+  }
 
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  body {
+    margin: 0 !important;
+  }
+
+  body * {
+    visibility: hidden !important;
+  }
+
+  .print-area,
+  .print-area * {
+    visibility: visible !important;
+  }
+
+  /* Move print area to top-left so it doesn't get centered */
+  .print-area {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    width: max-content !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+
+  /* IMPORTANT: don't clip */
+  .table-responsive,
+  .excel-scroll {
+    overflow: visible !important;
+    max-height: none !important;
+    height: auto !important;
+  }
+
+  /* Scale wide content (use zoom, more reliable in print) */
+  .print-scale {
+    zoom: 1;
+  }
+
+  /* Keep table behaving like table */
+  table {
+    border-collapse: collapse !important;
+    width: auto !important;
+  }
+
+  thead {
+    display: table-header-group;
+  }
+
+  tr {
+    page-break-inside: avoid;
+  }
+
+   tbody tr {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  /* add a little spacing when a new page starts */
+  tbody {
+    break-inside: auto;
+  }
+
+  /* optional: give name cell a bit more room */
+  .col-student {
+    min-width: 190px !important;
+  }
+
+  /* IMPORTANT: if you use zoom/scale, sometimes line-height clips */
+  .student-name-primary,
+  .student-name-secondary {
+    line-height: 1.25 !important;
+  }
+
+  /* remove the legend + save button */
+  .no-print,
+  .no-print * {
+    display: none !important;
+    visibility: hidden !important;
+  }
+}

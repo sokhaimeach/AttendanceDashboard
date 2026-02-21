@@ -17,14 +17,14 @@
       </div>
 
       <div class="d-flex gap-2">
-        <!-- <button
-        class="btn excel-btn excel-btn-save"
-        [disabled]="attendances.length === 0"
-        (click)="saveAttendance()"
+        <button
+        class="btn excel-btn text-light bg-dark" style="font-size: 13px;"
+        [disabled]="selectedClassId() === 0? true:false"
+        (click)="printReport()"
       >
-        <i class="bi bi-cloud-check-fill me-1"></i>
-        Save Changes
-      </button> -->
+        <i class="bi bi-printer-fill me-1"></i>
+        Print
+      </button>
 
         <button class="btn excel-btn excel-btn-export" (click)="exportAttendance()">
           @if(!loadingExport()) {
@@ -136,8 +136,8 @@
 
   @if (selectedClassId() > 0) {
   <!-- TABLE CARD -->
-  <div class="card excel-header-sheet">
-    <div class="card-body pt-3">
+  <div class="card excel-header-sheet print-area">
+    <div class="card-body pt-3 print-scale">
 
       <app-loading [loading]="loading()" [text]="'Fetching attendances...'"></app-loading>
       @if (!loading()) {
@@ -260,7 +260,7 @@
       </div>
 
       <!-- Save button and Rules -->
-      <div class="mt-2 d-flex justify-content-between">
+      <div class="mt-2 d-flex justify-content-between no-print">
         <button class="btn excel-btn excel-btn-save" [disabled]="attendances.length === 0" (click)="saveAttendance()">
           @if(!loadingSave()) {
           <i class="bi bi-cloud-check-fill me-1"></i>
