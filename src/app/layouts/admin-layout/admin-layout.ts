@@ -16,25 +16,11 @@ export class AdminLayout implements OnInit {
 
   isSidebarCollapsed = false;
   // logged in teacher account
-  teacher = signal<TeacherInterface>({
-    teacher_id: 0,
-    teachername_en: "",
-    teachername_kh: "",
-    role: "teacher",
-    phone: "",
-    is_active: false,
-    image_url: null
-  });
+  teacher = this.authService.getTeacherProfile();
 
   ngOnInit(): void {
     const sidebar = sessionStorage.getItem('sidebar_collapsed');
     this.isSidebarCollapsed = sidebar? JSON.parse(sidebar):false;
-    this.loadTeacherAccount();
-  }
-
-  // load logged in account info
-  loadTeacherAccount(): void {
-    this.teacher.set(this.authService.getTeacherProfile());
   }
 
   // logout

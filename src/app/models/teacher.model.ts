@@ -31,3 +31,10 @@ export interface TeacherReport {
   };
   error: any;
 }
+
+export interface TeacherResponeInterface {
+  statusCode: number;
+  message: string;
+  data: TeacherInterface;
+  error: any;
+}

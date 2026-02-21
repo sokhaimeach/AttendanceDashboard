@@ -1,9 +1,10 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { AuthResponseInterface, ResponseInterface } from '../../models/response.model';
-import { TeacherInterface } from '../../models/teacher.model';
+import { TeacherInterface, TeacherResponeInterface } from '../../models/teacher.model';
+import { jwtDecode } from 'jwt-decode';
 
 @Injectable({
   providedIn: 'root',
@@ -12,6 +13,8 @@ export class AuthService {
   private url: string = environment.apiUrl + '/auth';
   private TOKEN_KEY = 'attendance_access_token';
   private PROFILE_KEY = 'profile';
+  private currentUserRole = '';
+  private currentUser = signal<TeacherInterface>({} as TeacherInterface);
   constructor(private http: HttpClient) {}
 
   setToken(token: string) {
@@ -23,21 +26,28 @@ export class AuthService {
   }
 
   setTeacherProfile(teacher: TeacherInterface) {
-    sessionStorage.setItem(this.PROFILE_KEY, JSON.stringify(teacher));
+    this.currentUser.set(teacher);
   }
 
-  getTeacherProfile(): TeacherInterface {
-    let teacher: any = sessionStorage.getItem(this.PROFILE_KEY);
-    if(teacher) {
-      teacher = JSON.parse(teacher);
+  getTeacherProfile() {
+    return this.currentUser;
+  }
+
+  getLoggedInByToken(): Observable<TeacherResponeInterface> {
+    return this.http.get<TeacherResponeInterface>(`${this.url}/loggedIn`);
+  }
+
+  restoreTeacherRoleFromToken() {
+    const token = this.getToken();
+    if(token) {
+      const decoded: any = jwtDecode(token);
+      this.currentUserRole = decoded.role;
     }
-    return teacher;
   }
 
   hasRole(requiredRoles: string[]): boolean {
-    const teacher = this.getTeacherProfile();
-    if(!teacher) return false;
-    return !!requiredRoles.includes(teacher?.role);
+    if(!this.currentUserRole) return false;
+    return !!requiredRoles.includes(this.currentUserRole);
   }
 
   login(username: string, password: string): Observable<AuthResponseInterface> {

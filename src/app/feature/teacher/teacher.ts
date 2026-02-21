@@ -7,7 +7,8 @@ import { Toast } from '../../shared/toast/toast';
 import { FormsModule } from '@angular/forms';
 import { Loading } from '../../shared/loading/loading';
 import { TextLoading } from '../../shared/text-loading/text-loading';
-import { RouterLink } from "@angular/router";
+import { RouterLink } from '@angular/router';
+import { AuthService } from '../../services/auth/auth.service';
 
 @Component({
   selector: 'app-teacher',
@@ -19,6 +20,7 @@ export class Teacher implements OnInit {
   // inject all service
   private readonly teacherService = inject(TeacherService);
   private readonly toastService = inject(ToastService);
+  private readonly authService = inject(AuthService);
 
   // teacher varaible
   teachers = signal<TeacherInterface[]>([]);
@@ -35,7 +37,7 @@ export class Teacher implements OnInit {
   };
   selectedFile!: File;
   imagePreview: string | ArrayBuffer | null = null;
-  
+
   // update teacher variable
   selectedTeacher: TeacherInterface | null = null;
   selectedTeacherId: number = 0;
@@ -180,7 +182,7 @@ export class Teacher implements OnInit {
         this.loadingModal.set(false);
         this.toastService.showToast(err.error.message, 'danger');
         console.error(err.error.message);
-      }
+      },
     });
   }
 
@@ -255,19 +257,29 @@ export class Teacher implements OnInit {
   onUpdate() {
     this.loadingModal.set(true);
 
-    this.teacherService.updateTeacher(this.selectedTeacherId, this.createFormData()).subscribe({
-      next: (res) => {
-        this.toastService.showToast(res.message, 'success');
-        this.loadAllTachers();
-        this.loadTeacherReport();
-        this.clearForm();
-        this.loadingModal.set(false);
-      },
-      error: (err) => {
-        this.loadingModal.set(false);
-        this.toastService.showToast(err.error.message, 'danger');
-        console.error(err.error.message);
-      }
-    });
+    this.teacherService
+      .updateTeacher(this.selectedTeacherId, this.createFormData())
+      .subscribe({
+        next: (res) => {
+          this.toastService.showToast(res.message, 'success');
+          this.loadAllTachers();
+          this.loadTeacherReport();
+          this.clearForm();
+          this.loadingModal.set(false);
+          this.checkChangeLoggedInInfo(res.data);
+        },
+        error: (err) => {
+          this.loadingModal.set(false);
+          this.toastService.showToast(err.error.message, 'danger');
+          console.error(err.error.message);
+        },
+      });
+  }
+
+  private checkChangeLoggedInInfo(teacher: TeacherInterface): void {
+    const currentUser = this.authService.getTeacherProfile();
+    if (teacher.teacher_id === currentUser().teacher_id) {
+      this.authService.setTeacherProfile(teacher);
+    }
   }
 }

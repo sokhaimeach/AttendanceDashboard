@@ -165,7 +165,7 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
   onDateChange() {
     const d = new Date(this.selectDate);
     this.toastService.showToast(
-      `Change date to ${d.getDate()}-${d.getMonth()}-${d.getFullYear()}`,
+      `Change date to ${d.getDate()}-${d.getMonth() + 1}-${d.getFullYear()}`,
       'info',
     );
 
@@ -177,7 +177,7 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
     .find(c => c.class_id === Number(this.selectClassId))?.
     class_name;
     if(!className || this.selectClassId === 0) {
-      this.toastService.showToast(`Switched to no class`, 'info');
+      this.toastService.showToast(`Switched to all class`, 'info');
     } else {
       this.toastService.showToast(`Switched to class ${className}`, 'info');
     }

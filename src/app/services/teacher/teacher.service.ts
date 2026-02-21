@@ -3,7 +3,7 @@ import { environment } from '../../../environments/environment';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ResponseInterface } from '../../models/response.model';
-import { TeacherInfo, TeacherReport } from '../../models/teacher.model';
+import { TeacherInfo, TeacherReport, TeacherResponeInterface } from '../../models/teacher.model';
 
 @Injectable({
   providedIn: 'root',
@@ -33,8 +33,8 @@ export class TeacherService {
     return this.http.post<ResponseInterface>(`${this.url}`, formData);
   }
 
-  updateTeacher(id: number, formData: FormData): Observable<ResponseInterface> {
-    return this.http.put<ResponseInterface>(`${this.url}/${id}`, formData);
+  updateTeacher(id: number, formData: FormData): Observable<TeacherResponeInterface> {
+    return this.http.put<TeacherResponeInterface>(`${this.url}/${id}`, formData);
   }
 
   getTeacherReport(): Observable<TeacherReport> {
@@ -45,8 +45,8 @@ export class TeacherService {
     return this.http.get<ResponseInterface>(`${this.url}/${id}`);
   }
 
-  updateTeacherImage(id: number, formData: FormData): Observable<ResponseInterface> {
-    return this.http.put<ResponseInterface>(`${this.url}/${id}/image`, formData);
+  updateTeacherImage(id: number, formData: FormData): Observable<TeacherResponeInterface> {
+    return this.http.put<TeacherResponeInterface>(`${this.url}/${id}/image`, formData);
   }
 
   updateTeacherStatus(id: number, isActive: boolean): Observable<ResponseInterface> {

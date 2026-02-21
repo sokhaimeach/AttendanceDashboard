@@ -26,7 +26,6 @@ export class AuthLayout {
   constructor(private route: Router) {}
 
   login() {
-    console.log('Login form submitted:', this.form);
     if(!this.form.username || !this.form.password) {
       this.message = 'Please enter both username and password';
       this.isFailed.set(true);
@@ -41,6 +40,7 @@ export class AuthLayout {
           setTimeout(() => {
             const {token, ...data} = res.data;
             this.authService.setToken(token);
+            this.authService.restoreTeacherRoleFromToken();
             this.authService.setTeacherProfile(data);
             this.loading.set(false);
             this.isFailed.set(false);

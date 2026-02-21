@@ -61,8 +61,8 @@ export class Account implements OnInit {
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
       const id = params.get('id');
-      this.currentUserRole = this.authService.getTeacherProfile().role;
-      this.currentUserId = this.authService.getTeacherProfile().teacher_id || 0;
+      this.currentUserRole = this.authService.getTeacherProfile()().role;
+      this.currentUserId = this.authService.getTeacherProfile()().teacher_id || 0;
       this.loadTeacherInfo(Number(id));
     });
   }
@@ -208,9 +208,14 @@ export class Account implements OnInit {
           setTimeout(() => {
             this.toastService.showToast(res.message, 'success');
             this.loadTeacherInfo(this.teacher().teacher_id);
+
+            if(this.currentUserId === this.teacher().teacher_id) {
+              this.authService.setTeacherProfile(res.data);
+            }
+
             this.clearImage();
             this.loadingEditImage.set(false);
-          }, 2000);
+          }, 1000);
         },
         error: (err) => {
           console.error('Error updating profile image:', err);
