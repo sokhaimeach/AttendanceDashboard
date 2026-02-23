@@ -21,32 +21,6 @@
                     <i class="bi bi-file-earmark-arrow-up me-2"></i>Import excel or csv
                 </button>
                 <input #fileInput type="file" class="d-none" accept=".xlsx,.xls,.csv" (change)="import($event)" />
-
-                <!-- <button #importBtn class="btn btn-danger btn-sm dropdown-toggle shadow-sm pointer" type="button"
-                    data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
-                    <i class="bi bi-file-earmark-arrow-up me-2"></i>Import excel or csv
-                    <input type="file" class="d-none" accept=".xlsx,.xls,.csv" (change)="import($event)" />
-                </button> -->
-
-                <!-- <ul class="dropdown-menu">
-                    Excel
-                    <li>
-                        <label class="dropdown-item d-flex align-items-center gap-2" style="cursor:pointer;">
-                            <i class="bi bi-filetype-xlsx"></i>
-                            <span>As Excel</span>
-                            <input type="file" class="d-none" accept=".xlsx,.xls" (change)="importAsExcel($event)" />
-                        </label>
-                    </li>
-
-                    CSV
-                    <li>
-                        <label class="dropdown-item d-flex align-items-center gap-2" style="cursor:pointer;">
-                            <i class="bi bi-filetype-csv"></i>
-                            <span>As CSV</span>
-                            <input type="file" class="d-none" accept=".csv" (change)="importAsCsv($event)" />
-                        </label>
-                    </li>
-                </ul> -->
             </div>
 
 
