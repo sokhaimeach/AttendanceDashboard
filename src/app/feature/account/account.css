@@ -539,3 +539,58 @@
         transform: rotate(360deg);
     }
 }
+
+
+
+
+/* ===== Excel Modal Look ===== */
+.excel-modal {
+  border: 1px solid rgba(0,0,0,0.25);
+  border-radius: 6px;
+  overflow: hidden;
+  background: #fff;
+}
+
+/* header like excel gray row */
+.excel-modal-header {
+  background: #e7e6e6;
+  border-bottom: 1px solid rgba(0,0,0,0.25);
+  padding: 10px 12px;
+}
+
+.excel-modal-icon {
+  width: 34px;
+  height: 34px;
+  border: 1px solid rgba(0,0,0,0.25);
+  background: #fff;
+  border-radius: 4px;
+  display: grid;
+  place-items: center;
+  color: #107c41;
+  font-size: 16px;
+}
+
+.excel-modal-title {
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 1.1;
+  color: #111;
+}
+
+.excel-modal-subtitle {
+  font-size: 11px;
+  font-weight: 700;
+  color: #374151;
+  margin-top: 2px;
+}
+
+.excel-close {
+  opacity: 0.8;
+}
+.excel-close:hover {
+  opacity: 1;
+}
+
+.excel-modal-body {
+  padding: 12px;
+}

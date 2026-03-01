@@ -8,6 +8,7 @@ import { TeacherService } from '../../services/teacher/teacher.service';
 import { TextLoading } from '../../shared/text-loading/text-loading';
 import { AuthService } from '../../services/auth/auth.service';
 import { ActivatedRoute } from '@angular/router';
+import { EmailService } from '../../services/email/email.service';
 
 @Component({
   selector: 'app-account',
@@ -18,6 +19,7 @@ import { ActivatedRoute } from '@angular/router';
 export class Account implements OnInit {
   // services
   protected readonly teacherService = inject(TeacherService);
+  protected readonly emailService = inject(EmailService);
   protected readonly authService = inject(AuthService);
   protected readonly toastService = inject(ToastService);
   protected readonly route = inject(ActivatedRoute);
@@ -52,17 +54,27 @@ export class Account implements OnInit {
 
   resetPass: string = '';
 
+  // email form
+  emailForm: { email: string; password: string; teacher_id: number } = {
+    email: '',
+    password: '',
+    teacher_id: 0,
+  };
+  showEmailPass: boolean = false;
+
   // loading variable
   loadingEditImage = signal<boolean>(false);
   loadingUpdateStatus = signal<boolean>(false);
   loadingResetPassword = signal<boolean>(false);
   loadingChangePassword = signal<boolean>(false);
+  loadingSendEmail = signal<boolean>(false);
 
   ngOnInit(): void {
-    this.route.paramMap.subscribe(params => {
+    this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
       this.currentUserRole = this.authService.getTeacherProfile()().role;
-      this.currentUserId = this.authService.getTeacherProfile()().teacher_id || 0;
+      this.currentUserId =
+        this.authService.getTeacherProfile()().teacher_id || 0;
       this.loadTeacherInfo(Number(id));
     });
   }
@@ -77,6 +89,36 @@ export class Account implements OnInit {
         console.error('Error fetching teacher info:', err);
       },
     });
+  }
+
+  sendEmail() {
+    if (!this.emailForm.email || !this.emailForm.password) {
+      this.toastService.showToast('Email and password are required!', 'danger');
+      return;
+    }
+
+    this.emailForm.teacher_id = this.teacher().teacher_id;
+    this.loadingSendEmail.set(true);
+
+    this.emailService.sendEmail(this.emailForm).subscribe({
+      next: (res) => {
+        this.toastService.showToast('Send Email successfully', 'success');
+        this.loadingSendEmail.set(false);
+        this.resetEamilForm();
+      },
+      error: (err) => {
+        this.toastService.showToast('Failed to send email', 'danger');
+        this.loadingSendEmail.set(false);
+      },
+    });
+  }
+
+  resetEamilForm() {
+    this.emailForm = {
+      email: '',
+      password: '',
+      teacher_id: 0,
+    };
   }
 
   // admin function
@@ -209,7 +251,7 @@ export class Account implements OnInit {
             this.toastService.showToast(res.message, 'success');
             this.loadTeacherInfo(this.teacher().teacher_id);
 
-            if(this.currentUserId === this.teacher().teacher_id) {
+            if (this.currentUserId === this.teacher().teacher_id) {
               this.authService.setTeacherProfile(res.data);
             }
 

@@ -5,11 +5,11 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TextLoading } from '../../shared/text-loading/text-loading';
 import { Toast } from '../../shared/toast/toast';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-auth.layout',
-  imports: [CommonModule, FormsModule, TextLoading, Toast],
+  imports: [CommonModule, FormsModule, TextLoading, Toast, RouterLink],
   templateUrl: './auth.layout.html',
   styleUrl: './auth.layout.css',
 })

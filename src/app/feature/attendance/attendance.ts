@@ -24,6 +24,7 @@ import { TextLoading } from '../../shared/text-loading/text-loading';
 import { Loading } from '../../shared/loading/loading';
 import { Toast } from '../../shared/toast/toast';
 import { ToastService } from '../../shared/toast/toast.service';
+import { TelegramService } from '../../services/telegram/telegram.service';
 
 @Component({
   selector: 'app-attendance',
@@ -37,6 +38,7 @@ export class Attendance implements OnInit, AfterViewInit {
   private readonly classService = inject(Classservice);
   private readonly attendanceService = inject(Attendanceservice);
   private readonly toastService = inject(ToastService);
+  private readonly telegramService = inject(TelegramService);
 
   // state
   readonly classes = signal<ClassInterface[]>([]);
@@ -165,7 +167,10 @@ export class Attendance implements OnInit, AfterViewInit {
   private reloadAttendanceForNewWeek(): void {
     const current = this.parseDateLocal(this.selectedWeekStart());
     current.setDate(current.getDate() + 5);
-    this.toastService.showToast(`Attendance from ${this.selectedWeekStart()} to ${this.formatDateLocal(current)}`, 'info');
+    this.toastService.showToast(
+      `Attendance from ${this.selectedWeekStart()} to ${this.formatDateLocal(current)}`,
+      'info',
+    );
     if (this.selectedClassId() > 0) this.loadAttendance();
   }
 
@@ -181,7 +186,7 @@ export class Attendance implements OnInit, AfterViewInit {
   }
 
   private loadClasses(): void {
-    this.classService.getAllClasses("").subscribe({
+    this.classService.getAllClasses('').subscribe({
       next: (res) => this.classes.set(res.data),
       error: () => console.error('Error load classes'),
     });
@@ -220,10 +225,10 @@ export class Attendance implements OnInit, AfterViewInit {
   }
 
   onClassChange(): void {
-    const className = this.classes()
-    .find(c => c.class_id === Number(this.selectedClassId()))?.
-    class_name;
-    if(!className || this.selectedClassId() === 0) {
+    const className = this.classes().find(
+      (c) => c.class_id === Number(this.selectedClassId()),
+    )?.class_name;
+    if (!className || this.selectedClassId() === 0) {
       this.toastService.showToast(`Switched to no class`, 'info');
     } else {
       this.toastService.showToast(`Switched to class ${className}`, 'info');
@@ -234,11 +239,16 @@ export class Attendance implements OnInit, AfterViewInit {
 
   onStatusChange() {
     const status = Number(this.selectedStatus);
-    const text = status === 0? 
-    "remove status filter": status === 1?
-    "add (P) status filter" : status === 2?
-    "add (A) status filter": status === 3?
-    "add (AP) status filter": "add (L) status filter";
+    const text =
+      status === 0
+        ? 'remove status filter'
+        : status === 1
+          ? 'add (P) status filter'
+          : status === 2
+            ? 'add (A) status filter'
+            : status === 3
+              ? 'add (AP) status filter'
+              : 'add (L) status filter';
 
     this.toastService.showToast(`You'd ${text}`, 'info');
     this.loadAttendance();
@@ -293,13 +303,80 @@ export class Attendance implements OnInit, AfterViewInit {
 
       student.forEach((s) => (s.status = status));
 
-      this.attendances.forEach(a => a.status = status);
+      this.attendances.forEach((a) => (a.status = status));
     }
   }
 
   onCheckAllChange() {
-    const toastMes = this.isCheckAll? "Quick check on":"Quick check off";
+    const toastMes = this.isCheckAll ? 'Quick check on' : 'Quick check off';
     this.toastService.showToast(toastMes, 'info');
+  }
+
+  private formatAttendanceForTelegram() {
+    const subjectId = this.attendances[this.attendances.length - 1].subject_id;
+    const subjectName =
+      this.weeklySchedule()
+        .find((w) => w.slots.some((s: any) => s.subject_id === subjectId))
+        ?.slots.find((s: any) => s.subject_id === subjectId)?.subject_name ??
+      'Unknown';
+
+    const result: any = {
+      P: [],
+      A: [],
+      AP: [],
+      L: [],
+    };
+
+    this.attendances.forEach((record) => {
+      const status =
+        record.status === 1
+          ? 'P'
+          : record.status === 2
+            ? 'A'
+            : record.status === 3
+              ? 'AP'
+              : 'L';
+      const studentName =
+        this.studentAttendances().find(
+          (a) => a.student_id === record.student_id,
+        )?.studentname_en || 'Unknown';
+
+      result[status].push(studentName);
+    });
+
+    let message = '📋 Attendance Report\n\n';
+    message += `🏢 Class ${this.selectedClassName()}\t 📝 Subject ${subjectName} \n\n`;
+
+    Object.keys(result).forEach((status) => {
+      if(status === "P") {
+        message += "✅ Present (P)";
+      } else if(status === "A") {
+        message += "🅰️ Absent (A)";
+      } else if(status === "AP") {
+        message += "🅿️ Permission (AP)";
+      } else {
+        message += "🟨 Late (L)";
+      }
+
+      if (result[status].length === 0) {
+        message += '- None\n';
+      } else {
+        result[status].forEach((name: any) => {
+          message += `- ${name}\n`;
+        });
+      }
+
+      message += '\n';
+    });
+
+    return message;
+  }
+
+  private sendTelegramMessage() {
+    const message = this.formatAttendanceForTelegram();
+    this.telegramService
+      .sendMessage(message)
+      .subscribe((res) => console.log('send message successfully'));
   }
 
   // ---------------------------
@@ -358,6 +435,7 @@ export class Attendance implements OnInit, AfterViewInit {
     this.attendanceService.createManyAttendances(this.attendances).subscribe({
       next: (res) => {
         this.loadingSave.set(false);
+        this.sendTelegramMessage();
         this.loadAttendance();
         this.toastService.showToast(res.message, 'success');
       },
@@ -410,7 +488,10 @@ export class Attendance implements OnInit, AfterViewInit {
         a.click();
         window.URL.revokeObjectURL(url);
         this.loadingExport.set(false);
-        this.toastService.showToast("Download attendance report successfully", 'success');
+        this.toastService.showToast(
+          'Download attendance report successfully',
+          'success',
+        );
       });
   }
 
@@ -460,7 +541,7 @@ export class Attendance implements OnInit, AfterViewInit {
         error: (err) => {
           this.loadingUpdate.set(false);
           console.error('error update attendance ', err.error);
-        }
+        },
       });
   }
 }

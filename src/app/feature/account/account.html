@@ -155,7 +155,7 @@
                                 <i class="bi bi-shield-lock me-1"></i> Security
                             </button>
                         </li>
-                    }
+                        }
                     </ul>
 
                     <div class="tab-content p-3">
@@ -299,6 +299,12 @@
                                                     Reset
                                                     }
                                                 </button>
+
+                                                <button type="button" class="btn excel-btn excel-btn-save"
+                                                    title="Send Email" data-bs-toggle="modal"
+                                                    data-bs-target="#emailModal">
+                                                    <i class="bi bi-envelope-fill"></i>
+                                                </button>
                                             </div>
 
                                         </div>
@@ -406,6 +412,71 @@
 
     </div>
 
+</div>
+
+<!-- =================== Add/Edit Modal (Excel modal skin) =================== -->
+<div class="modal fade" id="emailModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content excel-modal">
+
+            <div class="modal-header excel-modal-header">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="excel-modal-icon">
+                        <i class="bi bi-envelope-arrow-up-fill"></i>
+                    </div>
+                    <div>
+                        <div class="excel-modal-title">
+                            Send Email Form
+                        </div>
+                        <div class="excel-modal-subtitle">Fill email and password</div>
+                    </div>
+                </div>
+
+                <button type="button" class="btn-close excel-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body excel-modal-body">
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label class="excel-field-label">Email</label>
+                        <div class="input-group excel-input-group">
+                            <span class="input-group-text bg-white"><i
+                                    class="bi bi-key-fill text-excel-green"></i></span>
+                            <input type="email" class="form-control excel-input-bootstrap"
+                                placeholder="Email to send to" [(ngModel)]="emailForm.email" />
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="excel-field-label">Password</label>
+                        <div class="input-group excel-input-group">
+                            <span class="input-group-text bg-white"><i
+                                    class="bi bi-key-fill text-excel-green"></i></span>
+                            <input [type]="showEmailPass ? 'text':'password'" class="form-control excel-input-bootstrap"
+                                placeholder="New password" [(ngModel)]="emailForm.password" />
+                            <button class="btn excel-clear-btn" type="button" (click)="showEmailPass=!showEmailPass"
+                                title="Show/Hide">
+                                <i class="bi" [ngClass]="showEmailPass ? 'bi-eye-slash' : 'bi-eye'"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="modal-footer excel-modal-footer">
+                <button class="btn excel-btn-lite" data-bs-dismiss="modal">Cancel</button>
+                <button class="btn excel-btn-save" (click)="sendEmail()">
+                    @if(loadingSendEmail()) {
+                    <app-text-loading></app-text-loading>
+                    } @else {
+                    <i class="bi bi-send"></i> Send
+                    }
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <app-toast></app-toast>
