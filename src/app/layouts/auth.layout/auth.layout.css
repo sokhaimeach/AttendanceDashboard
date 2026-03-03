@@ -1,139 +1,372 @@
-/* page background */
-.login-page{
+/* ──────────────────────────────────────────
+   AUTH PAGE — Premium Split-Panel Design
+   ────────────────────────────────────────── */
+
+/* Google Font */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+/* ── Page shell ── */
+.auth-page {
   min-height: 100vh;
-  background: #f6f7fb;
-}
-
-/* card */
-.login-card{
-  border: 1px solid rgba(0,0,0,0.25);
-  border-radius: 10px;
+  background: linear-gradient(135deg, #0a0f1e 0%, #0d1f3c 45%, #0a2a1e 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Inter', sans-serif;
   overflow: hidden;
-  background: #fff;
-  box-shadow: 0 14px 32px rgba(0,0,0,0.08);
+  position: relative;
 }
 
-/* header */
-.login-head{
-  padding: 12px 14px;
-  background: #e7e6e6;
-  border-bottom: 1px solid rgba(0,0,0,0.25);
+/* ── Animated background orbs ── */
+.bg-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.35;
+  animation: floatOrb 10s ease-in-out infinite alternate;
+  pointer-events: none;
 }
 
-.login-icon{
-  width: 40px;
-  height: 40px;
-  border-radius: 8px;
-  border: 1px solid rgba(0,0,0,0.25);
-  background: #fff;
+.orb-1 {
+  width: 420px; height: 420px;
+  background: radial-gradient(circle, #107c41 0%, transparent 70%);
+  top: -100px; left: -120px;
+  animation-delay: 0s;
+}
+.orb-2 {
+  width: 300px; height: 300px;
+  background: radial-gradient(circle, #1a56db 0%, transparent 70%);
+  bottom: -80px; right: -80px;
+  animation-delay: 3s;
+}
+.orb-3 {
+  width: 200px; height: 200px;
+  background: radial-gradient(circle, #7c3aed 0%, transparent 70%);
+  top: 40%; right: 30%;
+  animation-delay: 6s;
+}
+
+@keyframes floatOrb {
+  0%   { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(30px, 20px) scale(1.08); }
+}
+
+/* ── Main container ── */
+.auth-container {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  width: 900px;
+  max-width: 96vw;
+  min-height: 520px;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.06);
+}
+
+/* ── Left branding panel ── */
+.auth-left {
+  width: 42%;
+  background: linear-gradient(160deg, #107c41 0%, #0a5c2f 60%, #073e20 100%);
+  padding: 48px 36px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+}
+
+/* subtle radial glow inside left panel */
+.auth-left::before {
+  content: '';
+  position: absolute;
+  top: -60px; right: -60px;
+  width: 240px; height: 240px;
+  background: radial-gradient(circle, rgba(255,255,255,0.10) 0%, transparent 70%);
+  border-radius: 50%;
+}
+
+/* Brand */
+.brand-area { position: relative; z-index: 1; }
+
+.brand-icon {
+  width: 60px; height: 60px;
+  border-radius: 16px;
+  background: rgba(255,255,255,0.15);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.25);
   display: grid;
   place-items: center;
-  color: #107c41;
-  font-size: 18px;
+  font-size: 28px;
+  color: #fff;
+  margin-bottom: 20px;
 }
 
-.login-title{
-  font-weight: 700;
-  font-size: 16px;
-  color: #111;
-  line-height: 1.1;
-  text-transform: uppercase;
+.brand-title {
+  font-size: 28px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.5px;
+  margin: 0 0 8px;
+  line-height: 1;
+}
+.brand-title span { color: rgba(255,255,255,0.6); }
+
+.brand-desc {
+  font-size: 13.5px;
+  color: rgba(255,255,255,0.70);
+  line-height: 1.6;
+  margin: 0;
 }
 
-.login-sub{
-  font-weight: 600;
+/* Feature list */
+.feature-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  position: relative;
+  z-index: 1;
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  color: rgba(255,255,255,0.80);
+  font-weight: 500;
+}
+
+.feature-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.6);
+  flex-shrink: 0;
+  box-shadow: 0 0 0 3px rgba(255,255,255,0.15);
+}
+
+/* Brand footer */
+.brand-footer {
   font-size: 12px;
-  color: #374151;
-  margin-top: 2px;
+  color: rgba(255,255,255,0.50);
+  position: relative;
+  z-index: 1;
 }
 
-.login-badge{
+/* ── Right login panel ── */
+.auth-right {
+  flex: 1;
+  background: rgba(255,255,255,0.04);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-left: 1px solid rgba(255,255,255,0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 36px 28px;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 360px;
+}
+
+/* ── Card top ── */
+.card-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+}
+
+.card-avatar {
+  width: 46px; height: 46px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #107c41, #19a352);
+  display: grid;
+  place-items: center;
+  font-size: 20px;
+  color: #fff;
+  flex-shrink: 0;
+  box-shadow: 0 4px 16px rgba(16,124,65,0.4);
+}
+
+.card-heading {
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.card-subheading {
+  font-size: 12px;
+  color: rgba(255,255,255,0.5);
+  margin: 2px 0 0;
+}
+
+.role-badge {
+  margin-left: auto;
   display: inline-flex;
   align-items: center;
-  height: 30px;
-  padding: 0 10px;
-  border-radius: 999px;
-  border: 1px solid rgba(0,0,0,0.25);
-  background: rgba(255,255,255,0.85);
-  font-weight: 700;
-  font-size: 12px;
-  color: #111;
-}
-
-/* label */
-.excel-label{
-  font-weight: 700;
-  font-size: 12px;
-  color: #111;
-  margin-bottom: 6px;
-}
-.excel-label i{ color: #107c41; }
-
-.text-excel-green{ color:#107c41; }
-
-/* input group excel style */
-.excel-input-group{
-  border: 1px solid rgba(0,0,0,0.25);
-  border-radius: 6px;
-  overflow: hidden;
-  background: #fff;
-}
-.excel-input-group:focus-within{
-  border-color: rgba(16,124,65,0.6);
-  box-shadow: 0 0 0 3px rgba(16,124,65,0.10);
-}
-
-.excel-input-group .input-group-text{
-  border: 0;
-}
-
-.excel-input{
-  border: 0 !important;
-  box-shadow: none !important;
-  font-size: 14px;
-}
-
-/* clear button */
-.excel-clear-btn{
-  border: 0;
-  background: #fff;
-  padding: 0 10px;
-}
-.excel-clear-btn i{ color:#6b7280; }
-.excel-clear-btn:hover i{ color:#107c41; }
-
-/* eye button */
-.excel-eye-btn{
-  border: 0;
-  background: #fff;
+  height: 28px;
   padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.07);
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.70);
+  white-space: nowrap;
 }
-.excel-eye-btn i{ color:#6b7280; }
-.excel-eye-btn:hover i{ color:#107c41; }
 
-/* login primary btn */
-.excel-btn-save{
-  height: 40px;
-  border-radius: 6px;
-  border: 1px solid rgba(0,0,0,0.25);
-  background: #107c41;
+/* ── Alert ── */
+.auth-alert {
+  display: flex;
+  align-items: center;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: rgba(239,68,68,0.12);
+  border: 1px solid rgba(239,68,68,0.30);
+  color: #fca5a5;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 20px;
+}
+
+/* ── Form ── */
+.login-form { display: flex; flex-direction: column; gap: 0; }
+
+.field-group { margin-bottom: 18px; }
+
+.field-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.60);
+  margin-bottom: 8px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+.field-label i { color: #19a352; margin-right: 4px; }
+
+/* Input wrapper */
+.field-wrap {
+  display: flex;
+  align-items: center;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.06);
+  overflow: hidden;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.field-wrap:focus-within {
+  border-color: rgba(16,124,65,0.70);
+  box-shadow: 0 0 0 3px rgba(16,124,65,0.18);
+}
+
+.field-icon {
+  padding: 0 12px;
+  color: rgba(255,255,255,0.35);
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+.field-input {
+  flex: 1;
+  border: 0 !important;
+  background: transparent !important;
   color: #fff;
-  font-weight: 700;
   font-size: 14px;
+  font-weight: 500;
+  padding: 11px 4px;
+  outline: none;
+  box-shadow: none !important;
 }
-.excel-btn-save:hover{ filter: brightness(0.95); color:#fff; }
+.field-input::placeholder { color: rgba(255,255,255,0.25); }
 
-/* link */
-.login-link{
+/* Clear / eye button */
+.field-clear-btn {
+  border: 0;
+  background: transparent;
+  color: rgba(255,255,255,0.30);
+  padding: 0 12px;
+  font-size: 15px;
+  cursor: pointer;
+  transition: color 0.15s;
+  line-height: 1;
+}
+.field-clear-btn:hover { color: #19a352; }
+
+/* Forgot */
+.form-row-between {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 22px;
+}
+
+.forgot-link {
   text-decoration: none;
-  color: #107c41;
-  font-weight: 700;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #19a352;
+  transition: color 0.15s;
 }
-.login-link:hover{
-  text-decoration: underline;
+.forgot-link:hover { color: #22c55e; text-decoration: underline; }
+
+/* Sign-in button */
+.login-btn {
+  width: 100%;
+  height: 44px;
+  border-radius: 10px;
+  border: none;
+  background: linear-gradient(135deg, #107c41 0%, #19a352 100%);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: filter 0.2s, transform 0.15s, box-shadow 0.2s;
+  box-shadow: 0 6px 20px rgba(16,124,65,0.35);
+  letter-spacing: 0.01em;
+}
+.login-btn:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(16,124,65,0.5);
+}
+.login-btn:active { transform: translateY(0); filter: brightness(0.95); }
+
+/* Note */
+.form-note {
+  margin-top: 18px;
+  text-align: center;
+  font-size: 12px;
+  color: rgba(255,255,255,0.30);
 }
 
+/* Khmer font */
 .font-kh {
-    font-family: var(--kh-body);
-    font-size: 13px;
+  font-family: var(--kh-body);
+  font-size: 13px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 680px) {
+  .auth-container {
+    flex-direction: column;
+    border-radius: 16px;
+  }
+  .auth-left {
+    width: 100%;
+    padding: 28px 24px;
+    min-height: auto;
+  }
+  .feature-list { flex-direction: row; flex-wrap: wrap; gap: 10px; }
+  .brand-footer { display: none; }
+  .auth-right { padding: 28px 20px; }
 }
